@@ -516,7 +516,7 @@
     </div>
 
     <script>
-        const API_BASE = "https://your-backend.vercel.app"; // <-- set to your backend deployment URL
+const API_BASE = "https://ai-eight-tau.vercel.app"; // <-- set to your backend deployment URL
 
         // Global variables
         let uploadedImageData = null;
@@ -624,7 +624,7 @@
             
             showProgress();
             
-            fetch('http://localhost:5000/api/upload', {
+            fetch(`${API_BASE}/api/upload`, {
                 method: 'POST',
                 body: formData
             })
@@ -647,7 +647,7 @@
 
         // Health check on load
         window.addEventListener('DOMContentLoaded', () => {
-            fetch('http://localhost:5000/api/health')
+            fetch(`${API_BASE}/api/health`)
             .then(res => res.json())
             .then(data => {
                 if (data.status === 'healthy') {
@@ -716,7 +716,7 @@
             resultContainer.classList.add('hidden');
             resultPlaceholder.classList.remove('hidden');
 
-            fetch('http://localhost:5000/api/process', {
+            fetch(`${API_BASE}/api/process`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -812,7 +812,7 @@
                 return;
             }
             showProgress();
-            fetch('http://localhost:5000/api/save', {
+            fetch(`${API_BASE}/api/save`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -846,7 +846,7 @@
                 return;
             }
             showProgress();
-            fetch('http://localhost:5000/api/compare', {
+            fetch(`${API_BASE}/api/compare`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -910,7 +910,7 @@
             const saturation = parseFloat(document.getElementById('saturation-range').value);
             const rotate = parseInt(document.getElementById('rotate-range').value, 10);
 
-            fetch('http://localhost:5000/api/manual_edit', {
+            fetch(`${API_BASE}/api/manual_edit`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
