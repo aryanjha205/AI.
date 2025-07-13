@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Photo Editor Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .glass-card {
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .drop-zone {
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .drop-zone--over {
+            border-color: #60a5fa;
+            background: rgba(96, 165, 250, 0.1);
+            transform: scale(1.02);
+        }
+        
+        .loading-indicator {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #60a5fa;
+            animation: spin 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .command-history-item {
+            animation: slideIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        
+        @keyframes slideIn {
+            from { 
+                opacity: 0; 
+                transform: translateX(-20px);
+            }
+            to { 
+                opacity: 1; 
+                transform: translateX(0);
+            }
+        }
+        
+        .effect-button {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .effect-button:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .image-container {
+            position: relative;
+            overflow: hidden;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .image-container img {
+            transition: transform 0.3s ease;
+        }
+        
+        .image-container:hover img {
+            transform: scale(1.05);
+        }
+        
+        .status-indicator {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .floating-action {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 1000;
+        }
+        
+        .progress-bar {
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 2px;
+            transform-origin: left;
+            transition: transform 0.3s ease;
+        }
+        
+        .tooltip {
+            position: relative;
+        }
+        
+        .tooltip:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 1000;
+        }
+        
+        .feature-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+        
+        .text-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .custom-scrollbar {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Header -->
+    <header class="backdrop-blur-lg bg-white/10 border-b border-white/20 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                    <div class="w-10 h-10 bg-gradient-to-br from-blue-400 to-purple-600 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold text-white">AI Photo Editor Pro</h1>
+                        <p class="text-sm text-white/70">Professional image processing powered by AI</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div id="ai-status" class="flex items-center space-x-2 text-white/80">
+                        <div class="w-3 h-3 bg-green-400 rounded-full status-indicator"></div>
+                        <span class="text-sm font-medium">AI Ready</span>
+                    </div>
+                    <button class="btn-secondary text-white px-4 py-2 rounded-lg font-medium">
+                        Help
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-6 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Left Panel -->
+            <div class="lg:col-span-1 space-y-6">
+                <!-- Upload Section -->
+                <div class="glass-card rounded-2xl p-6">
+                    <div class="flex items-center space-x-3 mb-6">
+                        <div class="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                            <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                            </svg>
+                        </div>
+                        <h2 class="text-xl font-semibold text-white">Upload Image</h2>
+                    </div>
+                    
+                    <div id="drop-zone" class="drop-zone rounded-2xl p-8 text-center cursor-pointer">
+                        <input type="file" id="file-input" class="hidden" accept="image/*">
+                        <div class="flex flex-col items-center space-y-4">
+                            <div class="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center">
+                                <svg class="w-8 h-8 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                </svg>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-white/80 font-medium">Drag & drop your image here</p>
+                                <p class="text-white/50 text-sm mt-1">or click to browse</p>
+                            </div>
+                            <button id="browse-btn" class="btn-primary text-white px-6 py-2 rounded-lg font-medium">
+                                Choose File
+                            </button>
+                        </div>
+                        
+                        <div id="preview" class="hidden mt-6">
+                            <div class="image-container">
+                                <img id="preview-image" class="max-w-full max-h-48 w-full object-cover rounded-xl" src="" alt="Preview">
+                            </div>
+                            <div class="flex justify-between items-center mt-4">
+                                <span id="file-info" class="text-white/70 text-sm"></span>
+                                <button id="clear-btn" class="text-red-400 hover:text-red-300 text-sm font-medium">
+                                    Remove
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Commands Section -->
+                <div class="glass-card rounded-2xl p-6">
+                    <div class="flex items-center space-x-3 mb-6">
+                        <div class="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                            <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                            </svg>
+                        </div>
+                        <h2 class="text-xl font-semibold text-white">AI Commands</h2>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="relative">
+                            <input 
+                                type="text" 
+                                id="command-input" 
+                                class="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                placeholder="Describe what you want to do..."
+                                autocomplete="off"
+                            >
+                            <button id="send-command" class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-blue-500 to-purple-600 text-white p-2 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        
+                        <div>
+                            <p class="text-white/70 text-sm mb-3">Popular effects:</p>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button class="effect-command effect-button text-white/80 text-sm px-3 py-2 rounded-lg font-medium">
+                                    Oil painting
+                                </button>
+                                <button class="effect-command effect-button text-white/80 text-sm px-3 py-2 rounded-lg font-medium">
+                                    Cartoon effect
+                                </button>
+                                <button class="effect-command effect-button text-white/80 text-sm px-3 py-2 rounded-lg font-medium">
+                                    Vintage style
+                                </button>
+                                <button class="effect-command effect-button text-white/80 text-sm px-3 py-2 rounded-lg font-medium">
+                                    Sketch art
+                                </button>
+                                <button class="effect-command effect-button text-white/80 text-sm px-3 py-2 rounded-lg font-medium">
+                                    Neon glow
+                                </button>
+                                <button class="effect-command effect-button text-white/80 text-sm px-3 py-2 rounded-lg font-medium">
+                                    Watercolor
+                                </button>
+                                <button class="effect-command effect-button text-white/80 text-sm px-3 py-2 rounded-lg font-medium">
+                                    Black and white
+                                </button>
+                                <button class="effect-command effect-button text-white/80 text-sm px-3 py-2 rounded-lg font-medium">
+                                    HDR
+                                </button>
+                                <button class="effect-command effect-button text-white/80 text-sm px-3 py-2 rounded-lg font-medium">
+                                    Invert colors
+                                </button>
+                                <button class="effect-command effect-button text-white/80 text-sm px-3 py-2 rounded-lg font-medium">
+                                    Blur
+                                </button>
+                                <button class="effect-command effect-button text-white/80 text-sm px-3 py-2 rounded-lg font-medium">
+                                    Emboss
+                                </button>
+                                <button class="effect-command effect-button text-white/80 text-sm px-3 py-2 rounded-lg font-medium">
+                                    Sharpen
+                                </button>
+                                <button class="effect-command effect-button text-white/80 text-sm px-3 py-2 rounded-lg font-medium">
+                                    Solarize
+                                </button>
+                                <button class="effect-command effect-button text-white/80 text-sm px-3 py-2 rounded-lg font-medium">
+                                    Posterize
+                                </button>
+                                <button class="effect-command effect-button text-white/80 text-sm px-3 py-2 rounded-lg font-medium">
+                                    Edge detect
+                                </button>
+                                <button class="effect-command effect-button text-white/80 text-sm px-3 py-2 rounded-lg font-medium">
+                                    Sepia
+                                </button>
+                                <button class="effect-command effect-button text-white/80 text-sm px-3 py-2 rounded-lg font-medium">
+                                    Pixelate
+                                </button>
+                                <button class="effect-command effect-button text-white/80 text-sm px-3 py-2 rounded-lg font-medium">
+                                    Grayscale
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Command History -->
+                <div class="glass-card rounded-2xl p-6">
+                    <h3 class="text-lg font-semibold text-white mb-4">Recent Commands</h3>
+                    <div id="command-history" class="space-y-2 max-h-40 overflow-y-auto custom-scrollbar">
+                        <div class="text-center py-8 text-white/50">
+                            <svg class="w-12 h-12 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <p class="text-sm">Your commands will appear here</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Result Preview -->
+                <div class="glass-card rounded-2xl p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
+                                <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                </svg>
+                            </div>
+                            <h2 class="text-xl font-semibold text-white">Preview & Results</h2>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div id="processing-indicator" class="hidden flex items-center space-x-2 text-white/70">
+                                <div class="loading-indicator"></div>
+                                <span class="text-sm">Processing...</span>
+                            </div>
+                            <button id="download-btn" class="btn-primary text-white px-4 py-2 rounded-lg font-medium flex items-center space-x-2 hidden">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-4-4m4 4l4-4m5-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <span>Download</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="result-preview" class="min-h-96 flex items-center justify-center">
+                        <div id="result-placeholder" class="text-center">
+                            <div class="w-24 h-24 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <svg class="w-12 h-12 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-white/80 text-lg font-medium mb-2">Ready for AI Magic</h3>
+                            <p class="text-white/50 text-sm">Upload an image and give it a command to get started</p>
+                        </div>
+                        
+                        <div id="result-container" class="hidden w-full">
+                            <div class="image-container">
+                                <img id="result-image" class="max-w-full max-h-96 w-full object-contain rounded-xl" src="" alt="Result">
+                            </div>
+                            <div class="mt-4 flex justify-between items-center">
+                                <div class="text-white/70 text-sm">
+                                    <span id="process-time">Processing completed</span>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button id="compare-btn" class="btn-secondary text-white px-3 py-1 rounded-lg text-sm">
+                                        Compare
+                                    </button>
+                                    <button id="save-btn" class="btn-primary text-white px-3 py-1 rounded-lg text-sm">
+                                        Save
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Manual Edit Feature -->
+                <div class="glass-card rounded-2xl p-6 mt-4">
+                    <div class="flex items-center space-x-3 mb-6">
+                        <div class="w-8 h-8 bg-yellow-500/20 rounded-lg flex items-center justify-center">
+                            <svg class="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536M9 13h3l9-9a2.121 2.121 0 00-3-3l-9 9v3z"></path>
+                            </svg>
+                        </div>
+                        <h2 class="text-xl font-semibold text-white">Manual Edit</h2>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-white/80 text-sm font-medium mb-1 block" for="brightness-range">Brightness</label>
+                                <input type="range" id="brightness-range" min="0.5" max="1.5" step="0.01" value="1" class="w-full">
+                            </div>
+                            <div>
+                                <label class="text-white/80 text-sm font-medium mb-1 block" for="contrast-range">Contrast</label>
+                                <input type="range" id="contrast-range" min="0.5" max="1.5" step="0.01" value="1" class="w-full">
+                            </div>
+                            <div>
+                                <label class="text-white/80 text-sm font-medium mb-1 block" for="saturation-range">Saturation</label>
+                                <input type="range" id="saturation-range" min="0.5" max="1.5" step="0.01" value="1" class="w-full">
+                            </div>
+                            <div>
+                                <label class="text-white/80 text-sm font-medium mb-1 block" for="rotate-range">Rotate</label>
+                                <input type="range" id="rotate-range" min="0" max="360" step="1" value="0" class="w-full">
+                            </div>
+                        </div>
+                        <div class="flex space-x-2 mt-4">
+                            <button id="crop-btn" class="btn-secondary text-white px-4 py-2 rounded-lg font-medium">Crop</button>
+                            <button id="reset-edit-btn" class="btn-secondary text-white px-4 py-2 rounded-lg font-medium">Reset</button>
+                            <button id="apply-edit-btn" class="btn-primary text-white px-4 py-2 rounded-lg font-medium">Apply</button>
+                        </div>
+                        <p class="text-white/60 text-xs mt-2">* Manual edit is a preview feature. Real editing will be available soon.</p>
+                    </div>
+                </div>
+
+                <!-- Features Overview -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="feature-card rounded-xl p-4 text-center">
+                        <div class="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center mx-auto mb-3">
+                            <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-white font-medium mb-1">Lightning Fast</h3>
+                        <p class="text-white/60 text-sm">Process images in seconds</p>
+                    </div>
+                    
+                    <div class="feature-card rounded-xl p-4 text-center">
+                        <div class="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center mx-auto mb-3">
+                            <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-white font-medium mb-1">AI Powered</h3>
+                        <p class="text-white/60 text-sm">Advanced AI algorithms</p>
+                    </div>
+                    
+                    <div class="feature-card rounded-xl p-4 text-center">
+                        <div class="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center mx-auto mb-3">
+                            <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-white font-medium mb-1">High Quality</h3>
+                        <p class="text-white/60 text-sm">Professional results</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Processing Progress Bar -->
+    <div id="progress-container" class="fixed top-0 left-0 right-0 z-50 hidden">
+        <div class="progress-bar" style="transform: scaleX(0)"></div>
+    </div>
+
+    <script>
+        const API_BASE = "https://your-backend.vercel.app"; // <-- set to your backend deployment URL
+
+        // Global variables
+        let uploadedImageData = null;
+        let processedImageData = null;
+        let currentCommand = '';
+        let processingStartTime = null;
+
+        // DOM elements
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const browseBtn = document.getElementById('browse-btn');
+        const preview = document.getElementById('preview');
+        const previewImage = document.getElementById('preview-image');
+        const clearBtn = document.getElementById('clear-btn');
+        const fileInfo = document.getElementById('file-info');
+        const commandInput = document.getElementById('command-input');
+        const sendCommandBtn = document.getElementById('send-command');
+        const commandHistory = document.getElementById('command-history');
+        const effectCommands = document.querySelectorAll('.effect-command');
+        const resultPlaceholder = document.getElementById('result-placeholder');
+        const resultContainer = document.getElementById('result-container');
+        const resultImage = document.getElementById('result-image');
+        const processingIndicator = document.getElementById('processing-indicator');
+        const downloadBtn = document.getElementById('download-btn');
+        const compareBtn = document.getElementById('compare-btn');
+        const saveBtn = document.getElementById('save-btn');
+        const processTime = document.getElementById('process-time');
+        const progressContainer = document.getElementById('progress-container');
+        const progressBar = progressContainer.querySelector('.progress-bar');
+
+        // Event listeners
+        dropZone.addEventListener('click', () => fileInput.click());
+        browseBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            fileInput.click();
+        });
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('drop-zone--over');
+        });
+
+        dropZone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('drop-zone--over');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('drop-zone--over');
+            if (e.dataTransfer.files.length) {
+                fileInput.files = e.dataTransfer.files;
+                handleFileUpload(fileInput.files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length) {
+                handleFileUpload(fileInput.files[0]);
+            }
+        });
+
+        clearBtn.addEventListener('click', () => {
+            previewImage.src = '';
+            preview.classList.add('hidden');
+            fileInput.value = '';
+            uploadedImageData = null;
+            hideResult();
+        });
+
+        sendCommandBtn.addEventListener('click', sendCommand);
+        commandInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') sendCommand();
+        });
+
+        effectCommands.forEach(btn => {
+            btn.addEventListener('click', () => {
+                commandInput.value = btn.textContent.trim();
+                sendCommand();
+            });
+        });
+
+        downloadBtn.addEventListener('click', downloadImage);
+        compareBtn.addEventListener('click', compareImages);
+        saveBtn.addEventListener('click', saveToGallery);
+
+        // File upload handler
+        function handleFileUpload(file) {
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImage.src = e.target.result;
+                preview.classList.remove('hidden');
+                
+                // Show file info
+                const sizeInMB = (file.size / (1024 * 1024)).toFixed(2);
+                fileInfo.textContent = `${file.name} (${sizeInMB} MB)`;
+            };
+            reader.readAsDataURL(file);
+
+            // Upload to backend
+            const formData = new FormData();
+            formData.append('image', file);
+            
+            showProgress();
+            
+            fetch('http://localhost:5000/api/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                hideProgress();
+                if (data.success) {
+                    uploadedImageData = data.image_data;
+                    showNotification('Image uploaded successfully!', 'success');
+                } else {
+                    showNotification('Upload failed: ' + (data.error || 'Unknown error'), 'error');
+                }
+            })
+            .catch(error => {
+                hideProgress();
+                showNotification('Failed to connect to backend', 'error');
+                console.error('Upload error:', error);
+            });
+        }
+
+        // Health check on load
+        window.addEventListener('DOMContentLoaded', () => {
+            fetch('http://localhost:5000/api/health')
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'healthy') {
+                    document.getElementById('ai-status').querySelector('.status-indicator').classList.add('bg-green-400');
+                    showNotification('Backend connected!', 'success');
+                } else {
+                    showNotification('Backend not healthy', 'error');
+                }
+            })
+            .catch(() => {
+                document.getElementById('ai-status').querySelector('.status-indicator').classList.remove('bg-green-400');
+                document.getElementById('ai-status').querySelector('.status-indicator').classList.add('bg-red-400');
+                showNotification('Cannot connect to backend', 'error');
+            });
+        });
+
+        // Notification utility
+        function showNotification(message, type='info') {
+            // Simple notification (customize as needed)
+            const color = type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500';
+            let notif = document.createElement('div');
+            notif.className = `fixed top-6 right-6 px-4 py-2 rounded-lg text-white font-semibold shadow-lg z-50 ${color}`;
+            notif.textContent = message;
+            document.body.appendChild(notif);
+            setTimeout(() => notif.remove(), 2500);
+        }
+
+        // How to run the frontend
+        const instructions = `
+        1. Make sure your backend (Flask app) is running on http://localhost:5000.
+        2. Open \`ai.html\` in your web browser (double-click the file or right-click and choose "Open with" > your browser).
+        3. The frontend will connect to the backend automatically via JavaScript fetch requests.
+        4. You do **not** need to run a separate web server for the frontend unless you want to access it from another device or use advanced features.
+
+        Optional: Serve with a local web server (for CORS or advanced usage)
+        - You can use Python's built-in HTTP server:
+          \`\`\`sh
+          cd c:\\Users\\aryan\\OneDrive\\Desktop\\IMG.AI
+          python -m http.server 8080
+          \`\`\`
+        - Then open http://localhost:8080/ai.html in your browser.
+
+        Note
+        - Make sure both frontend and backend are running on the same machine, or adjust API URLs if needed.
+        `;
+
+        // Display instructions in a readable format
+        console.log('%c How to run the frontend', 'font-weight: bold; font-size: 16px;');
+        instructions.split('\n').forEach(line => {
+            console.log('%c ' + line, 'font-size: 14px;');
+        });
+
+        function sendCommand() {
+            const command = commandInput.value.trim();
+            if (!command) {
+                showNotification('Please enter a command.', 'error');
+                return;
+            }
+            if (!uploadedImageData) {
+                showNotification('Please upload an image first.', 'error');
+                return;
+            }
+
+            // Show processing indicator
+            processingIndicator.classList.remove('hidden');
+            resultContainer.classList.add('hidden');
+            resultPlaceholder.classList.remove('hidden');
+
+            fetch('http://localhost:5000/api/process', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    image_data: uploadedImageData,
+                    command: command
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                processingIndicator.classList.add('hidden');
+                if (data.success && data.processed_image) {
+                    processedImageData = data.processed_image;
+                    resultImage.src = processedImageData;
+                    resultContainer.classList.remove('hidden');
+                    resultPlaceholder.classList.add('hidden');
+                    processTime.textContent = `Processed in ${data.processing_time || '?'}s`;
+                    addCommandToHistory(command);
+                    showNotification('Image processed!', 'success');
+                    showDownloadButton();
+                } else {
+                    showNotification('Processing failed: ' + (data.error || 'Unknown error'), 'error');
+                    downloadBtn.classList.add('hidden');
+                }
+            })
+            .catch(error => {
+                processingIndicator.classList.add('hidden');
+                showNotification('Failed to connect to backend', 'error');
+                console.error('Process error:', error);
+                downloadBtn.classList.add('hidden');
+            });
+        }
+
+        // Download processed image
+        function downloadImage() {
+            if (!processedImageData) {
+                showNotification('No processed image to download.', 'error');
+                return;
+            }
+            // Create a temporary link and trigger download
+            const link = document.createElement('a');
+            link.href = processedImageData;
+            link.download = 'processed_image.png';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showNotification('Download started!', 'success');
+        }
+
+        // Show download button when processed image is available
+        function showDownloadButton() {
+            if (processedImageData) {
+                downloadBtn.classList.remove('hidden');
+            } else {
+                downloadBtn.classList.add('hidden');
+            }
+        }
+
+        function addCommandToHistory(command) {
+            const item = document.createElement('div');
+            item.className = 'command-history-item text-white/90 bg-white/10 rounded px-3 py-1';
+            item.textContent = command;
+            commandHistory.prepend(item);
+            // Limit history to 10 items
+            while (commandHistory.children.length > 10) {
+                commandHistory.removeChild(commandHistory.lastChild);
+            }
+        }
+
+        function showProgress() {
+            progressContainer.classList.remove('hidden');
+            progressBar.style.transform = 'scaleX(0.7)';
+        }
+        function hideProgress() {
+            progressBar.style.transform = 'scaleX(0)';
+            setTimeout(() => progressContainer.classList.add('hidden'), 400);
+        }
+        function hideResult() {
+            resultContainer.classList.add('hidden');
+            resultPlaceholder.classList.remove('hidden');
+        }
+
+        // Help button functionality
+        document.querySelector('.btn-secondary').addEventListener('click', () => {
+            showNotification('How to use: 1) Upload image 2) Enter command or select effect 3) Click Send', 'info');
+            console.log('[HELP] Help button clicked');
+        });
+
+        // Save to gallery
+        function saveToGallery() {
+            if (!processedImageData) {
+                showNotification('No processed image to save.', 'error');
+                console.log('[SAVE] No processed image');
+                return;
+            }
+            showProgress();
+            fetch('http://localhost:5000/api/save', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    image_data: processedImageData,
+                    command: commandInput.value.trim() || 'Unknown effect'
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                hideProgress();
+                if (data.success) {
+                    showNotification('Image saved to gallery!', 'success');
+                    console.log('[SAVE] Success', data);
+                } else {
+                    showNotification('Save failed: ' + (data.error || 'Unknown error'), 'error');
+                    console.log('[SAVE] Fail', data);
+                }
+            })
+            .catch(error => {
+                hideProgress();
+                showNotification('Failed to connect to backend', 'error');
+                console.error('[SAVE] Error:', error);
+            });
+        }
+
+        // Compare images
+        function compareImages() {
+            if (!uploadedImageData || !processedImageData) {
+                showNotification('Upload and process an image first.', 'error');
+                console.log('[COMPARE] Missing images');
+                return;
+            }
+            showProgress();
+            fetch('http://localhost:5000/api/compare', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    original: uploadedImageData,
+                    processed: processedImageData
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                hideProgress();
+                if (data.success && data.comparison_image) {
+                    showCompareModal(data.comparison_image);
+                    console.log('[COMPARE] Success', data);
+                } else {
+                    showNotification('Compare failed: ' + (data.error || 'Unknown error'), 'error');
+                    console.log('[COMPARE] Fail', data);
+                }
+            })
+            .catch(error => {
+                hideProgress();
+                showNotification('Failed to connect to backend', 'error');
+                console.error('[COMPARE] Error:', error);
+            });
+        }
+
+        // Simple compare modal
+        function showCompareModal(imageData) {
+            let modal = document.createElement('div');
+            modal.style.position = 'fixed';
+            modal.style.top = '0';
+            modal.style.left = '0';
+            modal.style.width = '100vw';
+            modal.style.height = '100vh';
+            modal.style.background = 'rgba(0,0,0,0.7)';
+            modal.style.display = 'flex';
+            modal.style.alignItems = 'center';
+            modal.style.justifyContent = 'center';
+            modal.style.zIndex = '9999';
+            modal.innerHTML = `
+                <div style="background:#fff;padding:24px;border-radius:16px;max-width:90vw;max-height:90vh;overflow:auto;position:relative;">
+                    <img src="${imageData}" style="max-width:80vw;max-height:80vh;display:block;margin:auto;border-radius:12px;">
+                    <button id="close-compare-modal" style="position:absolute;top:12px;right:12px;background:#e53e3e;color:#fff;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;">Close</button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            document.getElementById('close-compare-modal').onclick = () => modal.remove();
+            console.log('[COMPARE] Modal shown');
+        }
+
+        // Manual Edit Feature (calls backend)
+        document.getElementById('apply-edit-btn').addEventListener('click', () => {
+            if (!uploadedImageData && !processedImageData) {
+                showNotification('No image to edit.', 'error');
+                return;
+            }
+            showProgress();
+            // Use processedImageData if available, else uploadedImageData
+            const imageData = processedImageData || uploadedImageData;
+            const brightness = parseFloat(document.getElementById('brightness-range').value);
+            const contrast = parseFloat(document.getElementById('contrast-range').value);
+            const saturation = parseFloat(document.getElementById('saturation-range').value);
+            const rotate = parseInt(document.getElementById('rotate-range').value, 10);
+
+            fetch('http://localhost:5000/api/manual_edit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    image_data: imageData,
+                    brightness: brightness,
+                    contrast: contrast,
+                    saturation: saturation,
+                    rotate: rotate
+                    // Crop not implemented in UI yet
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                hideProgress();
+                if (data.success && data.edited_image) {
+                    processedImageData = data.edited_image;
+                    resultImage.src = processedImageData;
+                    resultContainer.classList.remove('hidden');
+                    resultPlaceholder.classList.add('hidden');
+                    processTime.textContent = `Manual edit applied`;
+                    showNotification('Manual edit applied!', 'success');
+                    showDownloadButton();
+                } else {
+                    showNotification('Manual edit failed: ' + (data.error || 'Unknown error'), 'error');
+                }
+            })
+            .catch(error => {
+                hideProgress();
+                showNotification('Failed to connect to backend', 'error');
+                console.error('[MANUAL EDIT] Error:', error);
+            });
+        });
+
+        document.getElementById('reset-edit-btn').addEventListener('click', () => {
+            document.getElementById('brightness-range').value = 1;
+            document.getElementById('contrast-range').value = 1;
+            document.getElementById('saturation-range').value = 1;
+            document.getElementById('rotate-range').value = 0;
+            showNotification('Manual edit reset', 'info');
+        });
+        document.getElementById('crop-btn').addEventListener('click', () => {
+            showNotification('Crop feature coming soon!', 'info');
+        });
+    </script>
+</body>
+</html>
