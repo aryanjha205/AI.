@@ -4,8 +4,8 @@
   "description": "Premium AI-powered photo editing tool for everyone.",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#0f172a",
-  "theme_color": "#6366f1",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
   "icons": [
     {
       "src": "ai_app_icon.png",

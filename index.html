@@ -2,21 +2,21 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Editor Pro AI - Premium Photo Editor</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Editor Pro AI - Professional Photo Studio</title>
     
     <!-- PWA Meta Tags -->
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#0f172a">
+    <meta name="theme-color" content="#ffffff">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Editor Pro AI">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Editor Pro">
     <link rel="apple-touch-icon" href="ai_app_icon.png">
     
     <!-- Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -29,11 +29,16 @@
                         heading: ['Outfit', 'sans-serif'],
                     },
                     colors: {
-                        primary: '#6366f1',
-                        secondary: '#a855f7',
-                        dark: '#0f172a',
-                        surface: 'rgba(255, 255, 255, 0.05)',
-                        'surface-hover': 'rgba(255, 255, 255, 0.1)',
+                        brand: {
+                            blue: '#4F46E5',  /* Matches Logo Blue */
+                            purple: '#9333EA', /* Matches Logo Purple */
+                        },
+                        ui: {
+                            bg: '#F8FAFC',
+                            card: 'rgba(255, 255, 255, 0.8)',
+                            text: '#1E293B',
+                            muted: '#64748B',
+                        }
                     }
                 }
             }
@@ -42,337 +47,314 @@
     
     <style>
         :root {
-            --primary: #6366f1;
-            --secondary: #a855f7;
-            --dark: #0f172a;
+            --brand-blue: #4F46E5;
+            --brand-purple: #9333EA;
         }
 
         body {
-            background-color: var(--dark);
+            background-color: #F8FAFC;
             background-image: 
-                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.15) 0px, transparent 50%);
-            color: white;
-            overflow-x: hidden;
+                radial-gradient(at 0% 0%, rgba(79, 70, 229, 0.05) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(147, 51, 234, 0.05) 0px, transparent 50%);
+            color: #1E293B;
             -webkit-tap-highlight-color: transparent;
         }
 
-        .glass {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-
         .glass-card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.04);
         }
 
-        .btn-gradient {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+        .logo-gradient {
+            background: linear-gradient(135deg, var(--brand-blue), var(--brand-purple));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .btn-brand {
+            background: linear-gradient(135deg, var(--brand-blue), var(--brand-purple));
+            color: white;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 12px -2px rgba(79, 70, 229, 0.2);
         }
 
-        .btn-gradient:hover {
+        .btn-brand:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.5);
+            box-shadow: 0 12px 24px -6px rgba(79, 70, 229, 0.4);
         }
 
-        .btn-gradient:active {
+        .btn-brand:active {
             transform: translateY(0);
         }
 
         .nav-item {
             transition: all 0.2s ease;
+            color: #64748B;
         }
 
         .nav-item.active {
-            background: rgba(99, 102, 241, 0.15);
-            color: var(--primary);
-            border-right: 3px solid var(--primary);
+            background: white;
+            color: var(--brand-blue);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
         }
 
         .custom-scrollbar::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: transparent;
+            width: 5px;
         }
 
         .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.1);
+            background: #E2E8F0;
             border-radius: 10px;
         }
 
+        @keyframes pulse-soft {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(0.95); }
+        }
+
+        .status-ready {
+            background: #22C55E;
+            box-shadow: 0 0 12px rgba(34, 197, 94, 0.4);
+            animation: pulse-soft 2s infinite ease-in-out;
+        }
+
         .drop-zone {
-            position: relative;
-            transition: all 0.3s ease;
+            border: 2px dashed rgba(79, 70, 229, 0.15);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(79, 70, 229, 0.02);
         }
 
-        .drop-zone.active {
-            border-color: var(--primary);
-            background: rgba(99, 102, 241, 0.05);
-            transform: scale(1.02);
+        .drop-zone:hover, .drop-zone.active {
+            border-color: var(--brand-blue);
+            background: white;
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px -10px rgba(79, 70, 229, 0.1);
         }
 
-        @keyframes shimmer {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
-        }
-
-        .shimmer {
-            position: relative;
-            overflow: hidden;
-        }
-
-        .shimmer::after {
-            content: '';
-            position: absolute;
-            top: 0; right: 0; bottom: 0; left: 0;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
-            animation: shimmer 1.5s infinite;
-        }
-
-        .floating {
-            animation: floating 3s ease-in-out infinite;
-        }
-
-        @keyframes floating {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
-        /* Mobile specific adjustments */
         @media (max-width: 768px) {
-            .mobile-bottom-nav {
-                padding-bottom: env(safe-area-inset-bottom);
-            }
-            .nav-item.active {
-                border-right: none;
-                border-top: 3px solid var(--primary);
+            .mobile-safe-bottom {
+                padding-bottom: calc(env(safe-area-inset-bottom) + 1rem);
             }
         }
     </style>
 </head>
-<body class="min-h-screen font-sans selection:bg-primary/30">
+<body class="min-h-screen selection:bg-brand-blue/10 selection:text-brand-blue">
 
-    <!-- Desktop Sidebar -->
-    <aside class="fixed left-0 top-0 h-full w-64 glass border-r hidden lg:flex flex-col z-40">
-        <div class="p-8">
-            <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 btn-gradient rounded-xl flex items-center justify-center">
-                    <i class="ph-fill ph-sparkle text-2xl"></i>
-                </div>
-                <div>
-                    <h1 class="font-heading font-bold text-xl tracking-tight">Editor Pro</h1>
-                    <p class="text-[10px] text-white/50 uppercase tracking-widest font-bold">AI Workspace</p>
-                </div>
+    <!-- Desktop Minimal Sidebar -->
+    <aside class="fixed left-0 top-0 h-full w-24 lg:w-72 bg-white/50 border-r border-slate-200/60 hidden md:flex flex-col z-40 transition-all duration-500">
+        <div class="p-8 flex items-center space-x-4 mb-4">
+            <img src="ai_app_icon.png" class="w-10 h-10 rounded-xl shadow-lg" alt="Logo">
+            <div class="hidden lg:block">
+                <h1 class="font-heading font-bold text-xl logo-gradient truncate">Editor Pro</h1>
+                <p class="text-[10px] text-slate-400 font-bold tracking-widest uppercase">AI Digital Studio</p>
             </div>
         </div>
 
-        <nav class="flex-1 px-4 space-y-2 mt-4">
-            <a href="#" class="nav-item active flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium">
-                <i class="ph ph-house-line text-xl"></i>
-                <span>Workspace</span>
+        <nav class="flex-1 px-4 space-y-2">
+            <a href="#" class="nav-item active flex items-center space-x-3 px-4 py-3.5 rounded-2xl text-sm font-semibold">
+                <i class="ph ph-magic-wand text-2xl"></i>
+                <span class="hidden lg:inline">Workspace</span>
             </a>
-            <a href="#" id="desktop-help-btn" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-white/60 hover:text-white hover:bg-white/5">
-                <i class="ph ph-info text-xl"></i>
-                <span>Help Center</span>
+            <a href="#" id="desktop-help-btn" class="nav-item flex items-center space-x-3 px-4 py-3.5 rounded-2xl text-sm font-semibold hover:bg-white hover:text-slate-900">
+                <i class="ph ph-question text-2xl"></i>
+                <span class="hidden lg:inline">Quick Guide</span>
+            </a>
+            <a href="https://ai-eight-tau.vercel.app/api/health" target="_blank" class="nav-item flex items-center space-x-3 px-4 py-3.5 rounded-2xl text-sm font-semibold hover:bg-white hover:text-slate-900">
+                <i class="ph ph-activity text-2xl"></i>
+                <span class="hidden lg:inline">System Status</span>
             </a>
         </nav>
 
-        <div class="p-4 mb-4">
-            <div class="glass-card rounded-2xl p-4 shimmer">
-                <p class="text-[10px] text-primary font-bold uppercase mb-1">Status</p>
-                <div id="ai-status-desktop" class="flex items-center space-x-2">
-                    <div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
-                    <span class="text-xs font-medium text-white/70">Connecting...</span>
-                </div>
+        <div class="p-6 hidden lg:block">
+            <div class="glass-card rounded-[2rem] p-6 text-center border-slate-100">
+                <div id="ai-status-dot" class="w-3 h-3 rounded-full bg-slate-300 mx-auto mb-3"></div>
+                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">State</h4>
+                <p id="ai-status-text" class="text-xs font-semibold text-slate-900">Connecting...</p>
             </div>
         </div>
     </aside>
 
-    <!-- Main Workspace -->
-    <main class="lg:ml-64 min-h-screen relative flex flex-col pb-24 lg:pb-0">
-        <!-- Header -->
-        <header class="sticky top-0 z-30 glass border-b px-6 py-4 flex items-center justify-between lg:hidden">
+    <!-- Main View -->
+    <main class="md:ml-24 lg:ml-72 min-h-screen relative flex flex-col pb-24 md:pb-0">
+        
+        <!-- Header Mobile -->
+        <header class="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-slate-100 px-6 py-4 flex items-center justify-between md:hidden">
             <div class="flex items-center space-x-3">
-                <div class="w-8 h-8 btn-gradient rounded-lg flex items-center justify-center">
-                    <i class="ph-fill ph-sparkle text-lg"></i>
-                </div>
-                <h1 class="font-heading font-bold text-lg">Editor Pro</h1>
+                <img src="ai_app_icon.png" class="w-8 h-8 rounded-lg shadow-md" alt="Logo">
+                <h1 class="font-heading font-bold text-lg logo-gradient">Editor Pro</h1>
             </div>
-            <div id="ai-status-mobile" class="flex items-center space-x-2">
-                <div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
-            </div>
+            <div id="ai-status-mobile" class="w-2.5 h-2.5 rounded-full bg-slate-300"></div>
         </header>
 
         <!-- Dynamic Content -->
-        <div class="flex-1 p-4 lg:p-8 max-w-6xl mx-auto w-full">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div class="flex-1 p-6 lg:p-12 max-w-7xl mx-auto w-full">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
                 
-                <!-- Interaction Panel -->
-                <div class="lg:col-span-4 space-y-6">
-                    <!-- Upload Card -->
-                    <div class="glass-card rounded-3xl p-6 overflow-hidden">
-                        <div class="flex items-center justify-between mb-6">
-                            <h2 class="font-heading font-semibold text-lg">Canvas</h2>
-                            <button id="clear-btn" class="text-xs font-medium text-white/40 hover:text-red-400 transition-colors hidden">Clear</button>
-                        </div>
+                <!-- Interaction Left Side -->
+                <div class="lg:col-span-4 space-y-8">
+                    
+                    <!-- Canvas / Upload -->
+                    <div class="glass-card rounded-[2.5rem] p-8 border-transparent">
+                        <h2 class="font-heading font-bold text-xl text-slate-900 mb-6 flex items-center justify-between">
+                            <span>Workspace</span>
+                            <button id="clear-btn" class="text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-red-500 hidden transition-colors">Clear</button>
+                        </h2>
 
-                        <div id="drop-zone" class="drop-zone border-2 border-dashed border-white/10 rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer group hover:border-primary/50">
+                        <div id="drop-zone" class="drop-zone rounded-[2rem] p-10 flex flex-col items-center justify-center cursor-pointer group">
                             <input type="file" id="file-input" class="hidden" accept="image/*">
                             
-                            <div id="upload-prompt" class="text-center">
-                                <div class="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                                    <i class="ph ph-cloud-arrow-up text-3xl text-white/40 group-hover:text-primary transition-colors"></i>
+                            <div id="upload-prompt" class="text-center group-hover:scale-110 transition-transform duration-300">
+                                <div class="w-20 h-20 bg-brand-blue/5 rounded-[2rem] flex items-center justify-center mb-6">
+                                    <i class="ph-bold ph-plus text-4xl text-brand-blue/40"></i>
                                 </div>
-                                <p class="text-sm font-medium text-white/80">Drop image here</p>
-                                <p class="text-xs text-white/40 mt-1">or click to browse</p>
+                                <p class="text-sm font-bold text-slate-900 uppercase tracking-wide">Import Image</p>
+                                <p class="text-xs text-slate-400 mt-2">Drag & Drop or Click</p>
                             </div>
 
                             <div id="preview-container" class="hidden w-full">
-                                <div class="relative rounded-xl overflow-hidden shadow-2xl">
-                                    <img id="preview-image" src="" alt="Source" class="w-full h-48 object-cover">
-                                    <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                                        <p class="text-[10px] font-bold uppercase tracking-widest">Change Image</p>
+                                <div class="relative rounded-3xl overflow-hidden shadow-xl ring-4 ring-white">
+                                    <img id="preview-image" src="" alt="Source" class="w-full h-52 object-cover">
+                                    <div class="absolute inset-0 bg-brand-blue/10 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                                        <div class="bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full text-[10px] font-bold tracking-widest uppercase shadow-lg">Tap to change</div>
                                     </div>
                                 </div>
-                                <div id="file-info" class="mt-3 text-[10px] text-white/40 font-mono text-center"></div>
+                                <p id="file-info" class="mt-4 text-[10px] text-slate-400 font-bold uppercase tracking-tighter text-center"></p>
                             </div>
                         </div>
                     </div>
 
-                    <!-- AI Command Center -->
-                    <div class="glass-card rounded-3xl p-6">
-                        <h2 class="font-heading font-semibold text-lg mb-6">AI Magic</h2>
+                    <!-- AI Instructions -->
+                    <div class="glass-card rounded-[2.5rem] p-8 space-y-8 border-transparent">
+                        <h2 class="font-heading font-bold text-xl text-slate-900">AI Directives</h2>
                         
-                        <div class="relative mb-6">
+                        <div class="relative">
                             <input 
                                 type="text" 
                                 id="command-input" 
-                                class="w-full h-14 glass rounded-2xl pl-6 pr-14 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all placeholder:text-white/20"
-                                placeholder="E.g. Make it look like a sketch..."
+                                class="w-full h-16 bg-slate-50 border border-slate-100 rounded-2xl pl-6 pr-16 text-sm font-medium focus:outline-none focus:ring-4 focus:ring-brand-blue/5 focus:border-brand-blue/20 transition-all placeholder:text-slate-300 shadow-inner"
+                                placeholder="Describe your vision..."
                             >
-                            <button id="send-command" class="absolute right-2 top-2 w-10 h-10 btn-gradient rounded-xl flex items-center justify-center shadow-lg active:scale-95">
-                                <i class="ph ph-paper-plane-right-bold text-lg"></i>
+                            <button id="send-command" class="absolute right-3 top-3 w-10 h-10 btn-brand rounded-xl flex items-center justify-center active:scale-95">
+                                <i class="ph-bold ph-lightning text-xl"></i>
                             </button>
                         </div>
 
                         <div class="space-y-4">
-                            <p class="text-[10px] font-bold uppercase tracking-widest text-white/30 px-2">Presets</p>
-                            <div class="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto custom-scrollbar pr-2">
-                                <button class="effect-command text-left px-3 py-2.5 rounded-xl border border-white/5 hover:border-primary/50 hover:bg-primary/5 text-xs font-medium transition-all">Oil Painting</button>
-                                <button class="effect-command text-left px-3 py-2.5 rounded-xl border border-white/5 hover:border-primary/50 hover:bg-primary/5 text-xs font-medium transition-all">Cartoon</button>
-                                <button class="effect-command text-left px-3 py-2.5 rounded-xl border border-white/5 hover:border-primary/50 hover:bg-primary/5 text-xs font-medium transition-all">Vintage</button>
-                                <button class="effect-command text-left px-3 py-2.5 rounded-xl border border-white/5 hover:border-primary/50 hover:bg-primary/5 text-xs font-medium transition-all">Sketch Art</button>
-                                <button class="effect-command text-left px-3 py-2.5 rounded-xl border border-white/5 hover:border-primary/50 hover:bg-primary/5 text-xs font-medium transition-all">Neon Glow</button>
-                                <button class="effect-command text-left px-3 py-2.5 rounded-xl border border-white/5 hover:border-primary/50 hover:bg-primary/5 text-xs font-medium transition-all">Watercolor</button>
+                            <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 px-1">Gallery Filters</p>
+                            <div class="flex flex-wrap gap-2">
+                                <button class="effect-command px-4 py-2.5 rounded-full bg-slate-50 border border-slate-100 text-xs font-bold text-slate-600 hover:border-brand-blue/40 hover:text-brand-blue hover:bg-white transition-all">Sketch Art</button>
+                                <button class="effect-command px-4 py-2.5 rounded-full bg-slate-50 border border-slate-100 text-xs font-bold text-slate-600 hover:border-brand-blue/40 hover:text-brand-blue hover:bg-white transition-all">Watercolor</button>
+                                <button class="effect-command px-4 py-2.5 rounded-full bg-slate-50 border border-slate-100 text-xs font-bold text-slate-600 hover:border-brand-blue/40 hover:text-brand-blue hover:bg-white transition-all">Oil Painting</button>
+                                <button class="effect-command px-4 py-2.5 rounded-full bg-slate-50 border border-slate-100 text-xs font-bold text-slate-600 hover:border-brand-blue/40 hover:text-brand-blue hover:bg-white transition-all">Neon Glow</button>
+                                <button class="effect-command px-4 py-2.5 rounded-full bg-slate-50 border border-slate-100 text-xs font-bold text-slate-600 hover:border-brand-blue/40 hover:text-brand-blue hover:bg-white transition-all">Vintage</button>
                             </div>
                         </div>
 
-                        <!-- Manual Controls -->
-                        <div class="mt-8 pt-8 border-t border-white/5 space-y-6">
+                        <!-- Manual Parameters -->
+                        <div class="pt-8 border-t border-slate-100 space-y-6">
                             <div class="flex items-center justify-between">
-                                <p class="text-[10px] font-bold uppercase tracking-widest text-white/30">Manual Tweak</p>
-                                <button id="reset-edit-btn" class="text-[10px] font-bold uppercase text-primary tracking-widest hover:text-white transition-colors">Reset</button>
+                                <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Parameters</p>
+                                <button id="reset-edit-btn" class="text-[10px] font-bold uppercase text-brand-blue tracking-tighter">Reset All</button>
                             </div>
                             
-                            <div class="space-y-4">
-                                <div class="space-y-2">
-                                    <div class="flex justify-between text-[10px] font-medium text-white/60">
-                                        <span>Brightness</span>
-                                        <span id="brightness-val">100%</span>
+                            <div class="grid grid-cols-1 gap-6">
+                                <div class="space-y-3">
+                                    <div class="flex justify-between text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                                        <span>Exposure</span>
+                                        <span id="brightness-val">100</span>
                                     </div>
-                                    <input type="range" id="brightness-range" min="0.5" max="1.5" step="0.01" value="1" class="w-full accent-primary h-1 bg-white/5 rounded-lg appearance-none cursor-pointer">
+                                    <input type="range" id="brightness-range" min="0.5" max="1.5" step="0.01" value="1" class="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-brand-blue">
                                 </div>
-                                <div class="space-y-2">
-                                    <div class="flex justify-between text-[10px] font-medium text-white/60">
+                                <div class="space-y-3">
+                                    <div class="flex justify-between text-[10px] font-bold text-slate-500 uppercase tracking-widest">
                                         <span>Contrast</span>
-                                        <span id="contrast-val">100%</span>
+                                        <span id="contrast-val">100</span>
                                     </div>
-                                    <input type="range" id="contrast-range" min="0.5" max="1.5" step="0.01" value="1" class="w-full accent-primary h-1 bg-white/5 rounded-lg appearance-none cursor-pointer">
-                                </div>
-                                <div class="space-y-2">
-                                    <div class="flex justify-between text-[10px] font-medium text-white/60">
-                                        <span>Rotate</span>
-                                        <span id="rotate-val">0°</span>
-                                    </div>
-                                    <input type="range" id="rotate-range" min="0" max="360" step="1" value="0" class="w-full accent-primary h-1 bg-white/5 rounded-lg appearance-none cursor-pointer">
+                                    <input type="range" id="contrast-range" min="0.5" max="1.5" step="0.01" value="1" class="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-brand-blue">
                                 </div>
                             </div>
 
-                            <button id="apply-edit-btn" class="w-full py-3 rounded-2xl bg-white/5 border border-white/10 text-xs font-bold uppercase tracking-widest hover:bg-white/10 transition-all active:scale-95">
-                                Apply Adjustments
+                            <button id="apply-edit-btn" class="w-full py-4 rounded-2xl bg-white border-2 border-slate-100 text-xs font-bold uppercase tracking-widest text-slate-900 hover:border-brand-blue/30 hover:bg-slate-50 transition-all active:scale-95 shadow-sm">
+                                Apply Parameters
                             </button>
                         </div>
                     </div>
                 </div>
 
-                <!-- Result Panel -->
+                <!-- Studio Output Right Side -->
                 <div class="lg:col-span-8">
-                    <div class="glass-card rounded-3xl h-full flex flex-col overflow-hidden relative">
-                        <div class="p-6 border-b border-white/5 flex items-center justify-between">
+                    <div class="glass-card rounded-[2.5rem] h-full flex flex-col border-transparent shadow-2xl shadow-slate-200/50">
+                        <!-- Navigation Header -->
+                        <div class="p-8 border-b border-slate-50 flex items-center justify-between bg-white/40">
                             <div class="flex items-center space-x-3">
-                                <div class="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]"></div>
-                                <h2 class="font-heading font-semibold text-lg">Result</h2>
+                                <div class="w-3 h-3 rounded-full bg-slate-200" id="processing-dot"></div>
+                                <h2 class="font-heading font-bold text-xl text-slate-900">Digital Studio</h2>
                             </div>
-                            <div class="flex items-center space-x-2">
-                                <div id="processing-indicator" class="hidden px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 flex items-center space-x-2">
-                                    <div class="w-3 h-3 border-2 border-primary/30 border-t-primary rounded-full animate-spin"></div>
-                                    <span class="text-[10px] font-bold text-primary uppercase tracking-tighter">Processing</span>
+                            <div class="flex items-center space-x-3">
+                                <div id="processing-indicator" class="hidden px-4 py-2 rounded-full bg-brand-blue/5 border border-brand-blue/10 flex items-center space-x-3">
+                                    <div class="w-4 h-4 border-2 border-brand-blue/20 border-t-brand-blue rounded-full animate-spin"></div>
+                                    <span class="text-[10px] font-bold text-brand-blue uppercase tracking-widest">Studying...</span>
                                 </div>
-                                <button id="download-btn" class="hidden h-9 px-4 rounded-xl btn-gradient text-xs font-bold uppercase flex items-center space-x-2">
-                                    <i class="ph ph-download-simple-bold text-base"></i>
-                                    <span>Download</span>
+                                <button id="download-btn" class="hidden h-11 px-6 rounded-2xl btn-brand text-xs font-bold uppercase tracking-widest flex items-center space-x-2">
+                                    <i class="ph-bold ph-download-simple text-lg"></i>
+                                    <span>Export</span>
                                 </button>
                             </div>
                         </div>
 
-                        <div id="result-preview" class="flex-1 min-h-[400px] lg:min-h-0 flex items-center justify-center p-4 lg:p-12">
-                            <div id="result-placeholder" class="text-center max-w-xs transition-all duration-700">
-                                <div class="w-24 h-24 bg-white/5 rounded-[2rem] flex items-center justify-center mx-auto mb-6 floating rotate-12">
-                                    <i class="ph ph-image text-4xl text-white/20"></i>
-                                </div>
-                                <h3 class="text-xl font-heading font-medium mb-2">Awaiting Magic</h3>
-                                <p class="text-sm text-white/40 leading-relaxed">Your AI-processed image will appear here. Start by uploading a photo.</p>
-                            </div>
-
-                            <div id="result-container" class="hidden w-full h-full flex flex-col">
-                                <div class="flex-1 relative group bg-black/20 rounded-2xl overflow-hidden border border-white/5 flex items-center justify-center">
-                                    <img id="result-image" src="" alt="Result" class="max-w-full max-h-[60vh] object-contain transition-transform duration-500 group-hover:scale-[1.02]">
-                                    
-                                    <div class="absolute bottom-4 left-4 right-4 flex justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <div class="glass rounded-2xl px-4 py-2 flex items-center space-x-4 shadow-2xl">
-                                            <button id="compare-btn" class="flex items-center space-x-2 text-[10px] font-bold uppercase text-white/70 hover:text-white transition-colors">
-                                                <i class="ph ph-arrows-left-right text-lg text-primary"></i>
-                                                <span>Compare</span>
-                                            </button>
-                                            <div class="w-px h-4 bg-white/10"></div>
-                                            <button id="save-btn" class="flex items-center space-x-2 text-[10px] font-bold uppercase text-white/70 hover:text-white transition-colors">
-                                                <i class="ph ph-floppy-disk text-lg text-secondary"></i>
-                                                <span>Save</span>
-                                            </button>
-                                        </div>
+                        <!-- Main Studio Display -->
+                        <div id="result-preview" class="flex-1 min-h-[500px] flex items-center justify-center p-8 lg:p-16 transition-all duration-300">
+                            <!-- Placeholder -->
+                            <div id="result-placeholder" class="text-center max-w-sm">
+                                <div class="relative mb-10 inline-block">
+                                    <div class="absolute inset-0 bg-brand-blue/10 blur-3xl rounded-full scale-150 opacity-50"></div>
+                                    <div class="w-28 h-28 bg-white rounded-[3rem] shadow-2xl flex items-center justify-center relative rotate-3 animate-bounce">
+                                        <i class="ph-fill ph-sparkle text-5xl logo-gradient"></i>
                                     </div>
                                 </div>
-                                <div class="mt-4 flex justify-center">
-                                    <span id="process-time" class="text-[10px] font-mono text-white/30 uppercase tracking-widest">Completed in 0.0s</span>
+                                <h3 class="text-2xl font-heading font-bold text-slate-900 mb-3 tracking-tight">Your Canvas Awaits</h3>
+                                <p class="text-sm text-slate-400 leading-relaxed font-medium">Upload an image and use our AI directives to create something extraordinary.</p>
+                            </div>
+
+                            <!-- Image Container -->
+                            <div id="result-container" class="hidden w-full h-full flex flex-col">
+                                <div class="flex-1 relative group bg-slate-50/50 rounded-[3rem] p-4 flex items-center justify-center shadow-inner overflow-hidden ring-1 ring-slate-100">
+                                    <img id="result-image" src="" alt="Studio Result" class="max-w-full max-h-[60vh] rounded-[2rem] object-contain shadow-2xl transition-all duration-700 hover:scale-[1.03]">
+                                    
+                                    <!-- Action Bar Floating -->
+                                    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center bg-white/90 backdrop-blur-xl px-2 py-2 rounded-3xl shadow-2xl border border-slate-100 opacity-0 group-hover:opacity-100 transition-all scale-90 group-hover:scale-100 pointer-events-none group-hover:pointer-events-auto">
+                                        <button id="compare-btn" class="flex items-center space-x-2 px-6 py-3 rounded-2xl text-[10px] font-bold uppercase text-slate-600 hover:text-brand-blue transition-all">
+                                            <i class="ph-bold ph-unite text-xl text-brand-blue"></i>
+                                            <span>Original</span>
+                                        </button>
+                                        <div class="w-px h-6 bg-slate-100 mx-2"></div>
+                                        <button id="save-btn" class="flex items-center space-x-2 px-6 py-3 rounded-2xl text-[10px] font-bold uppercase text-slate-600 hover:text-brand-purple transition-all">
+                                            <i class="ph-bold ph-bookmark-simple text-xl text-brand-purple"></i>
+                                            <span>Collection</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="mt-8 flex justify-center">
+                                    <span id="process-time" class="px-5 py-2 rounded-full bg-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center space-x-2">
+                                        <i class="ph ph-timer"></i>
+                                        <span>Studio finished in 0.0s</span>
+                                    </span>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- History Section (Bottom of Desktop Right Panel) -->
-                        <div class="p-6 border-t border-white/5 hidden lg:block">
-                            <p class="text-[10px] font-bold uppercase tracking-widest text-white/30 mb-4">Command History</p>
-                            <div id="command-history" class="flex flex-wrap gap-2 max-h-24 overflow-y-auto custom-scrollbar">
-                                <!-- Items injected here -->
-                                <p id="no-history" class="text-xs text-white/20 italic">No history yet</p>
+                        <!-- Command Gallery (Desktop Bottom) -->
+                        <div class="p-8 border-t border-slate-50 hidden lg:block bg-slate-20/20">
+                            <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-6 flex items-center space-x-2">
+                                <i class="ph-bold ph-clock-counter-clockwise"></i>
+                                <span>Session Log</span>
+                            </p>
+                            <div id="command-history" class="flex flex-wrap gap-3 max-h-32 overflow-y-auto custom-scrollbar pr-2">
+                                <p id="no-history" class="text-xs text-slate-300 font-bold uppercase tracking-widest italic">No directives recorded</p>
                             </div>
                         </div>
                     </div>
@@ -381,36 +363,36 @@
         </div>
     </main>
 
-    <!-- Mobile Bottom Navigation -->
-    <div class="fixed bottom-0 left-0 right-0 glass border-t z-50 flex justify-around lg:hidden mobile-bottom-nav">
-        <a href="#" class="flex flex-col items-center py-3 px-6 text-primary border-t-2 border-primary">
+    <!-- Mobile Bottom Navigation (Native App Style) -->
+    <div class="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl border-t border-slate-100 z-50 flex justify-around md:hidden mobile-safe-bottom">
+        <a href="#" class="flex flex-col items-center py-4 px-8 text-brand-blue transition-transform active:scale-90">
             <i class="ph-fill ph-house-line text-2xl"></i>
-            <span class="text-[10px] font-bold mt-1">Editor</span>
+            <span class="text-[10px] font-bold mt-1 uppercase tracking-tighter">Studio</span>
         </a>
-        <a href="#" id="mobile-help-btn" class="flex flex-col items-center py-3 px-6 text-white/40">
+        <a href="#" id="mobile-help-btn" class="flex flex-col items-center py-4 px-8 text-slate-400 transition-transform active:scale-90">
             <i class="ph ph-info text-2xl"></i>
-            <span class="text-[10px] font-bold mt-1">Help</span>
+            <span class="text-[10px] font-bold mt-1 uppercase tracking-tighter">Guide</span>
         </a>
-        <a href="#" id="mobile-install-btn" class="flex flex-col items-center py-3 px-6 text-white/40 hidden">
-            <i class="ph ph-app-store-logo text-2xl animate-bounce"></i>
-            <span class="text-[10px] font-bold mt-1">Install</span>
-        </a>
+        <button id="mobile-install-btn" class="flex flex-col items-center py-4 px-8 text-brand-purple hidden transition-transform active:scale-90">
+            <i class="ph ph-download-simple text-2xl animate-bounce"></i>
+            <span class="text-[10px] font-bold mt-1 uppercase tracking-tighter">Get App</span>
+        </button>
     </div>
 
-    <!-- Notification Container -->
-    <div id="notif-container" class="fixed top-6 right-6 z-[100] flex flex-col space-y-3 pointer-events-none"></div>
+    <!-- Notification Bar -->
+    <div id="notif-container" class="fixed top-8 right-8 z-[100] flex flex-col space-y-4 pointer-events-none"></div>
 
-    <!-- Modals -->
-    <div id="modal-overlay" class="fixed inset-0 bg-dark/80 backdrop-blur-sm z-[200] hidden items-center justify-center p-4">
-        <div id="compare-modal" class="glass-card rounded-[2.5rem] p-4 lg:p-8 max-w-5xl w-full max-h-[90vh] overflow-hidden flex flex-col">
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="font-heading font-semibold text-xl">Comparison View</h3>
-                <button id="close-modal" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-all">
-                    <i class="ph ph-x text-xl"></i>
+    <!-- Modal System -->
+    <div id="modal-overlay" class="fixed inset-0 bg-white/60 backdrop-blur-md z-[200] hidden items-center justify-center p-6">
+        <div id="compare-modal" class="bg-white rounded-[3rem] p-10 max-w-6xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl border border-slate-100">
+            <div class="flex items-center justify-between mb-8">
+                <h3 class="font-heading font-bold text-2xl text-slate-900 tracking-tight">Visual Comparison</h3>
+                <button id="close-modal" class="w-14 h-14 rounded-full bg-slate-50 flex items-center justify-center hover:bg-slate-100 transition-all active:scale-90">
+                    <i class="ph-bold ph-x text-2xl text-slate-400"></i>
                 </button>
             </div>
-            <div class="flex-1 overflow-auto custom-scrollbar">
-                <img id="compare-img" src="" alt="Comparison" class="w-full h-auto rounded-3xl shadow-2xl">
+            <div class="flex-1 overflow-auto custom-scrollbar p-2">
+                <img id="compare-img" src="" alt="Original vs Result" class="w-full h-auto rounded-[2rem] shadow-xl ring-8 ring-slate-50">
             </div>
         </div>
     </div>
@@ -418,12 +400,12 @@
     <script>
         const API_BASE = "https://ai-eight-tau.vercel.app";
 
-        // State
+        // APP STATE
         let uploadedImageData = null;
         let processedImageData = null;
         let deferredPrompt;
 
-        // Elements
+        // DOM ELEMENTS
         const dropZone = document.getElementById('drop-zone');
         const fileInput = document.getElementById('file-input');
         const previewContainer = document.getElementById('preview-container');
@@ -446,7 +428,7 @@
         const modalOverlay = document.getElementById('modal-overlay');
         const compareImg = document.getElementById('compare-img');
 
-        // PWA Installation
+        // PWA LOGIC
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
@@ -465,66 +447,61 @@
             }
         });
 
-        // Register Service Worker
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js')
-                    .then(reg => console.log('SW Registered', reg))
-                    .catch(err => console.log('SW Registration Failed', err));
+                    .then(reg => console.log('✅ ServiceWorker Registered'))
+                    .catch(e => console.error('❌ Registration Failed', e));
             });
         }
 
-        // Notification System
+        // DESIGN SYSTEM
         function showNotification(message, type = 'info') {
             const container = document.getElementById('notif-container');
             const notif = document.createElement('div');
-            const iconMap = {
-                success: 'ph-check-circle-fill text-green-400',
-                error: 'ph-warning-circle-fill text-red-400',
-                info: 'ph-info-fill text-primary'
+            const icons = {
+                success: 'ph-check-circle-fill text-green-500',
+                error: 'ph-warning-circle-fill text-red-500',
+                info: 'ph-info-fill text-brand-blue'
             };
             
-            notif.className = 'glass-card text-white px-5 py-3 rounded-2xl flex items-center space-x-3 shadow-2xl border border-white/10 pointer-events-auto transform transition-all duration-300 translate-x-12 opacity-0';
+            notif.className = 'bg-white text-slate-900 px-6 py-4 rounded-[1.5rem] flex items-center space-x-4 shadow-2xl border border-slate-100 pointer-events-auto transform transition-all duration-500 translate-x-12 opacity-0 ring-1 ring-slate-100';
             notif.innerHTML = `
-                <i class="ph ${iconMap[type]} text-xl"></i>
-                <span class="text-xs font-semibold">${message}</span>
+                <i class="ph-fill ${icons[type]} text-2xl"></i>
+                <span class="text-xs font-bold uppercase tracking-wide">${message}</span>
             `;
             
             container.appendChild(notif);
-            setTimeout(() => {
-                notif.classList.remove('translate-x-12', 'opacity-0');
-            }, 10);
+            setTimeout(() => notif.classList.remove('translate-x-12', 'opacity-0'), 20);
 
             setTimeout(() => {
                 notif.classList.add('translate-x-12', 'opacity-0');
-                setTimeout(() => notif.remove(), 300);
-            }, 3000);
+                setTimeout(() => notif.remove(), 500);
+            }, 3500);
         }
 
-        // Health Check
         async function checkHealth() {
             try {
                 const res = await fetch(`${API_BASE}/api/health`);
                 const data = await res.json();
-                const statusDot = document.querySelectorAll('#ai-status-desktop div, #ai-status-mobile div');
-                const statusText = document.querySelector('#ai-status-desktop span');
                 
                 if (data.status === 'healthy') {
-                    statusDot.forEach(d => {
-                        d.classList.remove('bg-red-500');
-                        d.classList.add('bg-green-500');
-                        d.classList.remove('animate-pulse');
+                    const dots = document.querySelectorAll('#ai-status-dot, #ai-status-mobile');
+                    dots.forEach(d => {
+                        d.classList.remove('bg-slate-300', 'bg-red-500');
+                        d.classList.add('status-ready');
                     });
-                    if(statusText) statusText.textContent = 'AI System Active';
-                    showNotification('AI Engine Connected', 'success');
+                    const statusText = document.getElementById('ai-status-text');
+                    if(statusText) statusText.textContent = 'Digital Artist Ready';
+                    showNotification('Neural Connection Active', 'success');
                 }
-            } catch (e) {
-                showNotification('AI Engine Offline', 'error');
+            } catch {
+                showNotification('Neural Engine Offline', 'error');
             }
         }
         checkHealth();
 
-        // File Handling
+        // FLOW LOGIC
         dropZone.addEventListener('click', () => fileInput.click());
         fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
 
@@ -544,7 +521,7 @@
 
         function handleFile(file) {
             if (!file || !file.type.startsWith('image/')) {
-                showNotification('Please upload a valid image', 'error');
+                showNotification('Unsupported File Type', 'error');
                 return;
             }
 
@@ -554,27 +531,26 @@
                 uploadPrompt.classList.add('hidden');
                 previewContainer.classList.remove('hidden');
                 clearBtn.classList.remove('hidden');
-                fileInfo.textContent = `${file.name} • ${(file.size / (1024 * 1024)).toFixed(1)}MB`;
+                fileInfo.textContent = `${file.name.substring(0, 15)}... • ${(file.size / (1024 * 1024)).toFixed(1)}MB`;
             };
             reader.readAsDataURL(file);
 
-            // Upload to API
             const formData = new FormData();
             formData.append('image', file);
             
-            showLoading(true);
+            showLoading(true, 'Analyzing Details...');
             fetch(`${API_BASE}/api/upload`, { method: 'POST', body: formData })
                 .then(res => res.json())
                 .then(data => {
                     showLoading(false);
                     if (data.success) {
                         uploadedImageData = data.image_data;
-                        showNotification('Upload Successful', 'success');
+                        showNotification('Image Captured', 'success');
                     }
                 })
                 .catch(() => {
                     showLoading(false);
-                    showNotification('Upload Failed', 'error');
+                    showNotification('Capture Failed', 'error');
                 });
         }
 
@@ -592,16 +568,15 @@
             downloadBtn.classList.add('hidden');
         });
 
-        // Processing
         async function sendCommand() {
             const command = commandInput.value.trim();
             if (!command || !uploadedImageData) {
-                showNotification(uploadedImageData ? 'Enter a command' : 'Upload an image first', 'info');
+                showNotification(uploadedImageData ? 'Directive Required' : 'Canvas is Empty', 'info');
                 return;
             }
 
-            resultPlaceholder.classList.add('opacity-0');
-            showLoading(true, 'AI is processing...');
+            resultPlaceholder.classList.add('scale-75', 'opacity-0');
+            showLoading(true, 'AI is Painting...');
             
             try {
                 const res = await fetch(`${API_BASE}/api/process`, {
@@ -616,17 +591,17 @@
                     resultImage.src = processedImageData;
                     resultPlaceholder.classList.add('hidden');
                     resultContainer.classList.remove('hidden');
-                    processTime.textContent = `Completed in ${data.processing_time || '0.2'}s`;
+                    processTime.querySelector('span').textContent = `Studio finished in ${data.processing_time || '0.5'}s`;
                     addHistory(command);
                     downloadBtn.classList.remove('hidden');
-                    showNotification('Processing Complete', 'success');
+                    showNotification('Directive Executed', 'success');
                 } else {
-                    showNotification(data.error || 'AI Failed', 'error');
-                    resultPlaceholder.classList.remove('hidden', 'opacity-0');
+                    showNotification(data.error || 'Directives Failed', 'error');
+                    resultPlaceholder.classList.remove('hidden', 'scale-75', 'opacity-0');
                 }
-            } catch (e) {
-                showNotification('Connection Error', 'error');
-                resultPlaceholder.classList.remove('hidden', 'opacity-0');
+            } catch {
+                showNotification('API Unreachable', 'error');
+                resultPlaceholder.classList.remove('hidden', 'scale-75', 'opacity-0');
             } finally {
                 showLoading(false);
             }
@@ -642,19 +617,19 @@
             });
         });
 
-        // Tools
+        // ACTIONS
         downloadBtn.addEventListener('click', () => {
             if(!processedImageData) return;
             const a = document.createElement('a');
             a.href = processedImageData;
-            a.download = `editor-pro-${Date.now()}.png`;
+            a.download = `editor-ai-${Date.now()}.png`;
             a.click();
-            showNotification('Download Started', 'success');
+            showNotification('Exporting Masterpiece', 'success');
         });
 
         compareBtn.addEventListener('click', async () => {
             if (!uploadedImageData || !processedImageData) return;
-            showLoading(true, 'Generating Comparison...');
+            showLoading(true, 'Rendering Differences...');
             try {
                 const res = await fetch(`${API_BASE}/api/compare`, {
                     method: 'POST',
@@ -674,35 +649,29 @@
 
         saveBtn.addEventListener('click', async () => {
             if (!processedImageData) return;
-            showLoading(true, 'Saving...');
+            showLoading(true, 'Adding to Library...');
             try {
                 const res = await fetch(`${API_BASE}/api/save`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        image_data: processedImageData, 
-                        command: commandInput.value || 'AI Effect' 
-                    })
+                    body: JSON.stringify({ image_data: processedImageData, command: commandInput.value || 'AI Edit' })
                 });
                 const data = await res.json();
-                if (data.success) showNotification('Saved to Cloud', 'success');
+                if (data.success) showNotification('Added to Collection', 'success');
             } finally {
                 showLoading(false);
             }
         });
 
-        // Manual Edit
+        // MANUAL CONTROL
         const sliders = {
             brightness: document.getElementById('brightness-range'),
-            contrast: document.getElementById('contrast-range'),
-            rotate: document.getElementById('rotate-range')
+            contrast: document.getElementById('contrast-range')
         };
 
         Object.entries(sliders).forEach(([key, el]) => {
             el.addEventListener('input', (e) => {
-                const valEl = document.getElementById(`${key}-val`);
-                if(key === 'rotate') valEl.textContent = `${e.target.value}°`;
-                else valEl.textContent = `${Math.round(e.target.value * 100)}%`;
+                document.getElementById(`${key}-val`).textContent = Math.round(e.target.value * 100);
             });
         });
 
@@ -710,7 +679,7 @@
             const current = processedImageData || uploadedImageData;
             if(!current) return;
             
-            showLoading(true, 'Applying tweaks...');
+            showLoading(true, 'Tuning Pixels...');
             try {
                 const res = await fetch(`${API_BASE}/api/manual_edit`, {
                     method: 'POST',
@@ -720,7 +689,7 @@
                         brightness: parseFloat(sliders.brightness.value),
                         contrast: parseFloat(sliders.contrast.value),
                         saturation: 1.0,
-                        rotate: parseInt(sliders.rotate.value)
+                        rotate: 0
                     })
                 });
                 const data = await res.json();
@@ -729,7 +698,7 @@
                     resultImage.src = processedImageData;
                     resultContainer.classList.remove('hidden');
                     resultPlaceholder.classList.add('hidden');
-                    showNotification('Adjustments Applied', 'success');
+                    showNotification('Tuning Complete', 'success');
                 }
             } finally {
                 showLoading(false);
@@ -737,53 +706,47 @@
         });
 
         document.getElementById('reset-edit-btn').addEventListener('click', () => {
-            sliders.brightness.value = 1;
-            sliders.contrast.value = 1;
-            sliders.rotate.value = 0;
+            sliders.brightness.value = 1; sliders.contrast.value = 1;
             sliders.brightness.dispatchEvent(new Event('input'));
             sliders.contrast.dispatchEvent(new Event('input'));
-            sliders.rotate.dispatchEvent(new Event('input'));
         });
 
-        // UI Helpers
-        function showLoading(show, text = 'Loading...') {
+        // HELPERS
+        function showLoading(show, text = 'Studying...') {
             processingIndicator.classList.toggle('hidden', !show);
+            const dot = document.getElementById('processing-dot');
             if(show) {
                 processingIndicator.querySelector('span').textContent = text;
                 sendCommandBtn.disabled = true;
                 sendCommandBtn.classList.add('opacity-50');
+                dot.classList.add('bg-brand-blue', 'animate-pulse');
+                dot.classList.remove('bg-slate-200');
             } else {
                 sendCommandBtn.disabled = false;
                 sendCommandBtn.classList.remove('opacity-50');
+                dot.classList.remove('bg-brand-blue', 'animate-pulse');
+                dot.classList.add('status-ready');
             }
         }
 
         function addHistory(cmd) {
             if(noHistoryText) noHistoryText.remove();
             const badge = document.createElement('div');
-            badge.className = 'px-3 py-1 bg-white/5 border border-white/5 rounded-lg text-[10px] font-medium text-white/50 hover:bg-white/10 cursor-pointer transition-all';
+            badge.className = 'px-4 py-2 bg-white border border-slate-100 rounded-full text-[10px] font-bold text-slate-500 hover:text-brand-blue hover:border-brand-blue/30 cursor-pointer transition-all shadow-sm uppercase tracking-tighter';
             badge.textContent = cmd;
-            badge.onclick = () => {
-                commandInput.value = cmd;
-                sendCommand();
-            };
+            badge.onclick = () => { commandInput.value = cmd; sendCommand(); };
             commandHistory.prepend(badge);
         }
 
-        // Modal close
         document.getElementById('close-modal').onclick = () => {
             modalOverlay.classList.remove('flex');
             modalOverlay.classList.add('hidden');
         };
-        modalOverlay.onclick = (e) => {
-            if(e.target === modalOverlay) document.getElementById('close-modal').click();
-        };
 
-        // Help buttons
         [document.getElementById('desktop-help-btn'), document.getElementById('mobile-help-btn')].forEach(btn => {
             btn?.addEventListener('click', (e) => {
                 e.preventDefault();
-                showNotification('Upload a photo and use AI tools to edit!', 'info');
+                showNotification('Upload a Photo & Type an Instruction!', 'info');
             });
         });
     </script>
