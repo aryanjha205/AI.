@@ -2,540 +2,437 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ai Editor</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Editor Pro AI - Premium Photo Editor</title>
+    
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Editor Pro AI">
+    <link rel="apple-touch-icon" href="ai_app_icon.png">
+    
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
+                        heading: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#6366f1',
+                        secondary: '#a855f7',
+                        dark: '#0f172a',
+                        surface: 'rgba(255, 255, 255, 0.05)',
+                        'surface-hover': 'rgba(255, 255, 255, 0.1)',
+                    }
+                }
+            }
+        }
+    </script>
+    
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-        
-        * {
-            font-family: 'Inter', sans-serif;
+        :root {
+            --primary: #6366f1;
+            --secondary: #a855f7;
+            --dark: #0f172a;
         }
-        
+
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-        }
-        
-        .glass-card {
-            backdrop-filter: blur(20px);
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-        }
-        
-        .drop-zone {
-            border: 2px dashed rgba(255, 255, 255, 0.3);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            background: rgba(255, 255, 255, 0.05);
-        }
-        
-        .drop-zone--over {
-            border-color: #60a5fa;
-            background: rgba(96, 165, 250, 0.1);
-            transform: scale(1.02);
-        }
-        
-        .loading-indicator {
-            display: inline-block;
-            width: 24px;
-            height: 24px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: #60a5fa;
-            animation: spin 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        .command-history-item {
-            animation: slideIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-        }
-        
-        @keyframes slideIn {
-            from { 
-                opacity: 0; 
-                transform: translateX(-20px);
-            }
-            to { 
-                opacity: 1; 
-                transform: translateX(0);
-            }
-        }
-        
-        .effect-button {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .effect-button:hover {
-            transform: translateY(-2px);
-            background: rgba(255, 255, 255, 0.2);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            transition: all 0.3s ease;
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-        }
-        
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            transition: all 0.3s ease;
-        }
-        
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-        
-        .image-container {
-            position: relative;
-            overflow: hidden;
-            border-radius: 16px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-        }
-        
-        .image-container img {
-            transition: transform 0.3s ease;
-        }
-        
-        .image-container:hover img {
-            transform: scale(1.05);
-        }
-        
-        .status-indicator {
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        
-        .floating-action {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            z-index: 1000;
-        }
-        
-        .progress-bar {
-            height: 4px;
-            background: linear-gradient(90deg, #667eea, #764ba2);
-            border-radius: 2px;
-            transform-origin: left;
-            transition: transform 0.3s ease;
-        }
-        
-        .tooltip {
-            position: relative;
-        }
-        
-        .tooltip:hover::after {
-            content: attr(data-tooltip);
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.8);
+            background-color: var(--dark);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.15) 0px, transparent 50%);
             color: white;
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-size: 12px;
-            white-space: nowrap;
-            z-index: 1000;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
         }
-        
-        .feature-card {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            transition: all 0.3s ease;
+
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
         }
-        
-        .feature-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
-        
-        .text-gradient {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+
+        .btn-gradient {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        
-        .custom-scrollbar {
-            scrollbar-width: thin;
-            scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+
+        .btn-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.5);
         }
-        
+
+        .btn-gradient:active {
+            transform: translateY(0);
+        }
+
+        .nav-item {
+            transition: all 0.2s ease;
+        }
+
+        .nav-item.active {
+            background: rgba(99, 102, 241, 0.15);
+            color: var(--primary);
+            border-right: 3px solid var(--primary);
+        }
+
         .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
+            width: 4px;
         }
-        
+
         .custom-scrollbar::-webkit-scrollbar-track {
             background: transparent;
         }
-        
+
         .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
         }
-        
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.5);
+
+        .drop-zone {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .drop-zone.active {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.05);
+            transform: scale(1.02);
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .shimmer {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .shimmer::after {
+            content: '';
+            position: absolute;
+            top: 0; right: 0; bottom: 0; left: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+            animation: shimmer 1.5s infinite;
+        }
+
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+
+        @keyframes floating {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* Mobile specific adjustments */
+        @media (max-width: 768px) {
+            .mobile-bottom-nav {
+                padding-bottom: env(safe-area-inset-bottom);
+            }
+            .nav-item.active {
+                border-right: none;
+                border-top: 3px solid var(--primary);
+            }
         }
     </style>
 </head>
-<body class="min-h-screen">
-    <!-- Header -->
-    <header class="backdrop-blur-lg bg-white/10 border-b border-white/20 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-6 py-4">
-            <div class="flex justify-between items-center">
-                <div class="flex items-center space-x-4">
-                    <div class="w-10 h-10 bg-gradient-to-br from-blue-400 to-purple-600 rounded-lg flex items-center justify-center">
-                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                        </svg>
-                    </div>
-                    <div>
-                        <h1 class="text-2xl font-bold text-white">Editor Pro</h1>
-                        <p class="text-sm text-white/70">Powered by AI</p>
-                    </div>
+<body class="min-h-screen font-sans selection:bg-primary/30">
+
+    <!-- Desktop Sidebar -->
+    <aside class="fixed left-0 top-0 h-full w-64 glass border-r hidden lg:flex flex-col z-40">
+        <div class="p-8">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 btn-gradient rounded-xl flex items-center justify-center">
+                    <i class="ph-fill ph-sparkle text-2xl"></i>
                 </div>
-                <div class="flex items-center space-x-4">
-                    <div id="ai-status" class="flex items-center space-x-2 text-white/80">
-                        <div class="w-3 h-3 bg-green-400 rounded-full status-indicator"></div>
-                        <span class="text-sm font-medium">AI Ready</span>
-                    </div>
-                    <button class="btn-secondary text-white px-4 py-2 rounded-lg font-medium">
-                        Help
-                    </button>
+                <div>
+                    <h1 class="font-heading font-bold text-xl tracking-tight">Editor Pro</h1>
+                    <p class="text-[10px] text-white/50 uppercase tracking-widest font-bold">AI Workspace</p>
                 </div>
             </div>
         </div>
-    </header>
 
-    <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-6 py-8">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Left Panel -->
-            <div class="lg:col-span-1 space-y-6">
-                <!-- Upload Section -->
-                <div class="glass-card rounded-2xl p-6">
-                    <div class="flex items-center space-x-3 mb-6">
-                        <div class="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center">
-                            <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                            </svg>
-                        </div>
-                        <h2 class="text-xl font-semibold text-white">Upload Image</h2>
-                    </div>
-                    
-                    <div id="drop-zone" class="drop-zone rounded-2xl p-8 text-center cursor-pointer">
-                        <input type="file" id="file-input" class="hidden" accept="image/*">
-                        <div class="flex flex-col items-center space-y-4">
-                            <div class="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center">
-                                <svg class="w-8 h-8 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                                </svg>
-                            </div>
-                            <div class="text-center">
-                                <p class="text-white/80 font-medium">Drag & drop your image here</p>
-                                <p class="text-white/50 text-sm mt-1">or click to browse</p>
-                            </div>
-                            <button id="browse-btn" class="btn-primary text-white px-6 py-2 rounded-lg font-medium">
-                                Choose File
-                            </button>
-                        </div>
-                        
-                        <div id="preview" class="hidden mt-6">
-                            <div class="image-container">
-                                <img id="preview-image" class="max-w-full max-h-48 w-full object-cover rounded-xl" src="" alt="Preview">
-                            </div>
-                            <div class="flex justify-between items-center mt-4">
-                                <span id="file-info" class="text-white/70 text-sm"></span>
-                                <button id="clear-btn" class="text-red-400 hover:text-red-300 text-sm font-medium">
-                                    Remove
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+        <nav class="flex-1 px-4 space-y-2 mt-4">
+            <a href="#" class="nav-item active flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium">
+                <i class="ph ph-house-line text-xl"></i>
+                <span>Workspace</span>
+            </a>
+            <a href="#" id="desktop-help-btn" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-white/60 hover:text-white hover:bg-white/5">
+                <i class="ph ph-info text-xl"></i>
+                <span>Help Center</span>
+            </a>
+        </nav>
+
+        <div class="p-4 mb-4">
+            <div class="glass-card rounded-2xl p-4 shimmer">
+                <p class="text-[10px] text-primary font-bold uppercase mb-1">Status</p>
+                <div id="ai-status-desktop" class="flex items-center space-x-2">
+                    <div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
+                    <span class="text-xs font-medium text-white/70">Connecting...</span>
                 </div>
+            </div>
+        </div>
+    </aside>
 
-                <!-- AI Commands Section -->
-                <div class="glass-card rounded-2xl p-6">
-                    <div class="flex items-center space-x-3 mb-6">
-                        <div class="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center">
-                            <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
-                            </svg>
+    <!-- Main Workspace -->
+    <main class="lg:ml-64 min-h-screen relative flex flex-col pb-24 lg:pb-0">
+        <!-- Header -->
+        <header class="sticky top-0 z-30 glass border-b px-6 py-4 flex items-center justify-between lg:hidden">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 btn-gradient rounded-lg flex items-center justify-center">
+                    <i class="ph-fill ph-sparkle text-lg"></i>
+                </div>
+                <h1 class="font-heading font-bold text-lg">Editor Pro</h1>
+            </div>
+            <div id="ai-status-mobile" class="flex items-center space-x-2">
+                <div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
+            </div>
+        </header>
+
+        <!-- Dynamic Content -->
+        <div class="flex-1 p-4 lg:p-8 max-w-6xl mx-auto w-full">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                
+                <!-- Interaction Panel -->
+                <div class="lg:col-span-4 space-y-6">
+                    <!-- Upload Card -->
+                    <div class="glass-card rounded-3xl p-6 overflow-hidden">
+                        <div class="flex items-center justify-between mb-6">
+                            <h2 class="font-heading font-semibold text-lg">Canvas</h2>
+                            <button id="clear-btn" class="text-xs font-medium text-white/40 hover:text-red-400 transition-colors hidden">Clear</button>
                         </div>
-                        <h2 class="text-xl font-semibold text-white">AI Commands</h2>
+
+                        <div id="drop-zone" class="drop-zone border-2 border-dashed border-white/10 rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer group hover:border-primary/50">
+                            <input type="file" id="file-input" class="hidden" accept="image/*">
+                            
+                            <div id="upload-prompt" class="text-center">
+                                <div class="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                    <i class="ph ph-cloud-arrow-up text-3xl text-white/40 group-hover:text-primary transition-colors"></i>
+                                </div>
+                                <p class="text-sm font-medium text-white/80">Drop image here</p>
+                                <p class="text-xs text-white/40 mt-1">or click to browse</p>
+                            </div>
+
+                            <div id="preview-container" class="hidden w-full">
+                                <div class="relative rounded-xl overflow-hidden shadow-2xl">
+                                    <img id="preview-image" src="" alt="Source" class="w-full h-48 object-cover">
+                                    <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                                        <p class="text-[10px] font-bold uppercase tracking-widest">Change Image</p>
+                                    </div>
+                                </div>
+                                <div id="file-info" class="mt-3 text-[10px] text-white/40 font-mono text-center"></div>
+                            </div>
+                        </div>
                     </div>
-                    
-                    <div class="space-y-4">
-                        <div class="relative">
+
+                    <!-- AI Command Center -->
+                    <div class="glass-card rounded-3xl p-6">
+                        <h2 class="font-heading font-semibold text-lg mb-6">AI Magic</h2>
+                        
+                        <div class="relative mb-6">
                             <input 
                                 type="text" 
                                 id="command-input" 
-                                class="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                placeholder="Describe what you want to do..."
-                                autocomplete="off"
+                                class="w-full h-14 glass rounded-2xl pl-6 pr-14 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all placeholder:text-white/20"
+                                placeholder="E.g. Make it look like a sketch..."
                             >
-                            <button id="send-command" class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-blue-500 to-purple-600 text-white p-2 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
-                                </svg>
+                            <button id="send-command" class="absolute right-2 top-2 w-10 h-10 btn-gradient rounded-xl flex items-center justify-center shadow-lg active:scale-95">
+                                <i class="ph ph-paper-plane-right-bold text-lg"></i>
                             </button>
                         </div>
-                        
-                        <div>
-                            <p class="text-white/70 text-sm mb-3">Popular effects:</p>
-                            <div class="grid grid-cols-2 gap-2">
-                                <button class="effect-command effect-button text-white/80 text-sm px-3 py-2 rounded-lg font-medium">
-                                    Oil painting
-                                </button>
-                                <button class="effect-command effect-button text-white/80 text-sm px-3 py-2 rounded-lg font-medium">
-                                    Cartoon effect
-                                </button>
-                                <button class="effect-command effect-button text-white/80 text-sm px-3 py-2 rounded-lg font-medium">
-                                    Vintage style
-                                </button>
-                                <button class="effect-command effect-button text-white/80 text-sm px-3 py-2 rounded-lg font-medium">
-                                    Sketch art
-                                </button>
-                                <button class="effect-command effect-button text-white/80 text-sm px-3 py-2 rounded-lg font-medium">
-                                    Neon glow
-                                </button>
-                                <button class="effect-command effect-button text-white/80 text-sm px-3 py-2 rounded-lg font-medium">
-                                    Watercolor
-                                </button>
-                                <button class="effect-command effect-button text-white/80 text-sm px-3 py-2 rounded-lg font-medium">
-                                    Black and white
-                                </button>
-                                <button class="effect-command effect-button text-white/80 text-sm px-3 py-2 rounded-lg font-medium">
-                                    HDR
-                                </button>
-                                <button class="effect-command effect-button text-white/80 text-sm px-3 py-2 rounded-lg font-medium">
-                                    Invert colors
-                                </button>
-                                <button class="effect-command effect-button text-white/80 text-sm px-3 py-2 rounded-lg font-medium">
-                                    Blur
-                                </button>
-                                <button class="effect-command effect-button text-white/80 text-sm px-3 py-2 rounded-lg font-medium">
-                                    Emboss
-                                </button>
-                                <button class="effect-command effect-button text-white/80 text-sm px-3 py-2 rounded-lg font-medium">
-                                    Sharpen
-                                </button>
-                                <button class="effect-command effect-button text-white/80 text-sm px-3 py-2 rounded-lg font-medium">
-                                    Solarize
-                                </button>
-                                <button class="effect-command effect-button text-white/80 text-sm px-3 py-2 rounded-lg font-medium">
-                                    Posterize
-                                </button>
-                                <button class="effect-command effect-button text-white/80 text-sm px-3 py-2 rounded-lg font-medium">
-                                    Edge detect
-                                </button>
-                                <button class="effect-command effect-button text-white/80 text-sm px-3 py-2 rounded-lg font-medium">
-                                    Sepia
-                                </button>
-                                <button class="effect-command effect-button text-white/80 text-sm px-3 py-2 rounded-lg font-medium">
-                                    Pixelate
-                                </button>
-                                <button class="effect-command effect-button text-white/80 text-sm px-3 py-2 rounded-lg font-medium">
-                                    Grayscale
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Command History -->
-                <div class="glass-card rounded-2xl p-6">
-                    <h3 class="text-lg font-semibold text-white mb-4">Recent Commands</h3>
-                    <div id="command-history" class="space-y-2 max-h-40 overflow-y-auto custom-scrollbar">
-                        <div class="text-center py-8 text-white/50">
-                            <svg class="w-12 h-12 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                            <p class="text-sm">Your commands will appear here</p>
+                        <div class="space-y-4">
+                            <p class="text-[10px] font-bold uppercase tracking-widest text-white/30 px-2">Presets</p>
+                            <div class="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto custom-scrollbar pr-2">
+                                <button class="effect-command text-left px-3 py-2.5 rounded-xl border border-white/5 hover:border-primary/50 hover:bg-primary/5 text-xs font-medium transition-all">Oil Painting</button>
+                                <button class="effect-command text-left px-3 py-2.5 rounded-xl border border-white/5 hover:border-primary/50 hover:bg-primary/5 text-xs font-medium transition-all">Cartoon</button>
+                                <button class="effect-command text-left px-3 py-2.5 rounded-xl border border-white/5 hover:border-primary/50 hover:bg-primary/5 text-xs font-medium transition-all">Vintage</button>
+                                <button class="effect-command text-left px-3 py-2.5 rounded-xl border border-white/5 hover:border-primary/50 hover:bg-primary/5 text-xs font-medium transition-all">Sketch Art</button>
+                                <button class="effect-command text-left px-3 py-2.5 rounded-xl border border-white/5 hover:border-primary/50 hover:bg-primary/5 text-xs font-medium transition-all">Neon Glow</button>
+                                <button class="effect-command text-left px-3 py-2.5 rounded-xl border border-white/5 hover:border-primary/50 hover:bg-primary/5 text-xs font-medium transition-all">Watercolor</button>
+                            </div>
                         </div>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Right Panel -->
-            <div class="lg:col-span-2 space-y-6">
-                <!-- Result Preview -->
-                <div class="glass-card rounded-2xl p-6">
-                    <div class="flex items-center justify-between mb-6">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
-                                <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                                </svg>
+                        <!-- Manual Controls -->
+                        <div class="mt-8 pt-8 border-t border-white/5 space-y-6">
+                            <div class="flex items-center justify-between">
+                                <p class="text-[10px] font-bold uppercase tracking-widest text-white/30">Manual Tweak</p>
+                                <button id="reset-edit-btn" class="text-[10px] font-bold uppercase text-primary tracking-widest hover:text-white transition-colors">Reset</button>
                             </div>
-                            <h2 class="text-xl font-semibold text-white">Preview & Results</h2>
-                        </div>
-                        <div class="flex items-center space-x-2">
-                            <div id="processing-indicator" class="hidden flex items-center space-x-2 text-white/70">
-                                <div class="loading-indicator"></div>
-                                <span class="text-sm">Processing...</span>
+                            
+                            <div class="space-y-4">
+                                <div class="space-y-2">
+                                    <div class="flex justify-between text-[10px] font-medium text-white/60">
+                                        <span>Brightness</span>
+                                        <span id="brightness-val">100%</span>
+                                    </div>
+                                    <input type="range" id="brightness-range" min="0.5" max="1.5" step="0.01" value="1" class="w-full accent-primary h-1 bg-white/5 rounded-lg appearance-none cursor-pointer">
+                                </div>
+                                <div class="space-y-2">
+                                    <div class="flex justify-between text-[10px] font-medium text-white/60">
+                                        <span>Contrast</span>
+                                        <span id="contrast-val">100%</span>
+                                    </div>
+                                    <input type="range" id="contrast-range" min="0.5" max="1.5" step="0.01" value="1" class="w-full accent-primary h-1 bg-white/5 rounded-lg appearance-none cursor-pointer">
+                                </div>
+                                <div class="space-y-2">
+                                    <div class="flex justify-between text-[10px] font-medium text-white/60">
+                                        <span>Rotate</span>
+                                        <span id="rotate-val">0°</span>
+                                    </div>
+                                    <input type="range" id="rotate-range" min="0" max="360" step="1" value="0" class="w-full accent-primary h-1 bg-white/5 rounded-lg appearance-none cursor-pointer">
+                                </div>
                             </div>
-                            <button id="download-btn" class="btn-primary text-white px-4 py-2 rounded-lg font-medium flex items-center space-x-2 hidden">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-4-4m4 4l4-4m5-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                                <span>Download</span>
+
+                            <button id="apply-edit-btn" class="w-full py-3 rounded-2xl bg-white/5 border border-white/10 text-xs font-bold uppercase tracking-widest hover:bg-white/10 transition-all active:scale-95">
+                                Apply Adjustments
                             </button>
                         </div>
                     </div>
-                    
-                    <div id="result-preview" class="min-h-96 flex items-center justify-center">
-                        <div id="result-placeholder" class="text-center">
-                            <div class="w-24 h-24 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <svg class="w-12 h-12 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                </svg>
-                            </div>
-                            <h3 class="text-white/80 text-lg font-medium mb-2">Ready for AI Magic</h3>
-                            <p class="text-white/50 text-sm">Upload an image and give it a command to get started</p>
-                        </div>
-                        
-                        <div id="result-container" class="hidden w-full">
-                            <div class="image-container">
-                                <img id="result-image" class="max-w-full max-h-96 w-full object-contain rounded-xl" src="" alt="Result">
-                            </div>
-                            <div class="mt-4 flex justify-between items-center">
-                                <div class="text-white/70 text-sm">
-                                    <span id="process-time">Processing completed</span>
-                                </div>
-                                <div class="flex space-x-2">
-                                    <button id="compare-btn" class="btn-secondary text-white px-3 py-1 rounded-lg text-sm">
-                                        Compare
-                                    </button>
-                                    <button id="save-btn" class="btn-primary text-white px-3 py-1 rounded-lg text-sm">
-                                        Save
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
-                <!-- Manual Edit Feature -->
-                <div class="glass-card rounded-2xl p-6 mt-4">
-                    <div class="flex items-center space-x-3 mb-6">
-                        <div class="w-8 h-8 bg-yellow-500/20 rounded-lg flex items-center justify-center">
-                            <svg class="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536M9 13h3l9-9a2.121 2.121 0 00-3-3l-9 9v3z"></path>
-                            </svg>
-                        </div>
-                        <h2 class="text-xl font-semibold text-white">Manual Edit</h2>
-                    </div>
-                    <div class="space-y-4">
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="text-white/80 text-sm font-medium mb-1 block" for="brightness-range">Brightness</label>
-                                <input type="range" id="brightness-range" min="0.5" max="1.5" step="0.01" value="1" class="w-full">
+                <!-- Result Panel -->
+                <div class="lg:col-span-8">
+                    <div class="glass-card rounded-3xl h-full flex flex-col overflow-hidden relative">
+                        <div class="p-6 border-b border-white/5 flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]"></div>
+                                <h2 class="font-heading font-semibold text-lg">Result</h2>
                             </div>
-                            <div>
-                                <label class="text-white/80 text-sm font-medium mb-1 block" for="contrast-range">Contrast</label>
-                                <input type="range" id="contrast-range" min="0.5" max="1.5" step="0.01" value="1" class="w-full">
-                            </div>
-                            <div>
-                                <label class="text-white/80 text-sm font-medium mb-1 block" for="saturation-range">Saturation</label>
-                                <input type="range" id="saturation-range" min="0.5" max="1.5" step="0.01" value="1" class="w-full">
-                            </div>
-                            <div>
-                                <label class="text-white/80 text-sm font-medium mb-1 block" for="rotate-range">Rotate</label>
-                                <input type="range" id="rotate-range" min="0" max="360" step="1" value="0" class="w-full">
+                            <div class="flex items-center space-x-2">
+                                <div id="processing-indicator" class="hidden px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 flex items-center space-x-2">
+                                    <div class="w-3 h-3 border-2 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+                                    <span class="text-[10px] font-bold text-primary uppercase tracking-tighter">Processing</span>
+                                </div>
+                                <button id="download-btn" class="hidden h-9 px-4 rounded-xl btn-gradient text-xs font-bold uppercase flex items-center space-x-2">
+                                    <i class="ph ph-download-simple-bold text-base"></i>
+                                    <span>Download</span>
+                                </button>
                             </div>
                         </div>
-                        <div class="flex space-x-2 mt-4">
-                            <button id="crop-btn" class="btn-secondary text-white px-4 py-2 rounded-lg font-medium">Crop</button>
-                            <button id="reset-edit-btn" class="btn-secondary text-white px-4 py-2 rounded-lg font-medium">Reset</button>
-                            <button id="apply-edit-btn" class="btn-primary text-white px-4 py-2 rounded-lg font-medium">Apply</button>
-                        </div>
-                        <p class="text-white/60 text-xs mt-2">* Manual edit is a preview feature. Real editing will be available soon.</p>
-                    </div>
-                </div>
 
-                <!-- Features Overview -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="feature-card rounded-xl p-4 text-center">
-                        <div class="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center mx-auto mb-3">
-                            <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                            </svg>
+                        <div id="result-preview" class="flex-1 min-h-[400px] lg:min-h-0 flex items-center justify-center p-4 lg:p-12">
+                            <div id="result-placeholder" class="text-center max-w-xs transition-all duration-700">
+                                <div class="w-24 h-24 bg-white/5 rounded-[2rem] flex items-center justify-center mx-auto mb-6 floating rotate-12">
+                                    <i class="ph ph-image text-4xl text-white/20"></i>
+                                </div>
+                                <h3 class="text-xl font-heading font-medium mb-2">Awaiting Magic</h3>
+                                <p class="text-sm text-white/40 leading-relaxed">Your AI-processed image will appear here. Start by uploading a photo.</p>
+                            </div>
+
+                            <div id="result-container" class="hidden w-full h-full flex flex-col">
+                                <div class="flex-1 relative group bg-black/20 rounded-2xl overflow-hidden border border-white/5 flex items-center justify-center">
+                                    <img id="result-image" src="" alt="Result" class="max-w-full max-h-[60vh] object-contain transition-transform duration-500 group-hover:scale-[1.02]">
+                                    
+                                    <div class="absolute bottom-4 left-4 right-4 flex justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <div class="glass rounded-2xl px-4 py-2 flex items-center space-x-4 shadow-2xl">
+                                            <button id="compare-btn" class="flex items-center space-x-2 text-[10px] font-bold uppercase text-white/70 hover:text-white transition-colors">
+                                                <i class="ph ph-arrows-left-right text-lg text-primary"></i>
+                                                <span>Compare</span>
+                                            </button>
+                                            <div class="w-px h-4 bg-white/10"></div>
+                                            <button id="save-btn" class="flex items-center space-x-2 text-[10px] font-bold uppercase text-white/70 hover:text-white transition-colors">
+                                                <i class="ph ph-floppy-disk text-lg text-secondary"></i>
+                                                <span>Save</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-4 flex justify-center">
+                                    <span id="process-time" class="text-[10px] font-mono text-white/30 uppercase tracking-widest">Completed in 0.0s</span>
+                                </div>
+                            </div>
                         </div>
-                        <h3 class="text-white font-medium mb-1">Lightning Fast</h3>
-                        <p class="text-white/60 text-sm">Process images in seconds</p>
-                    </div>
-                    
-                    <div class="feature-card rounded-xl p-4 text-center">
-                        <div class="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center mx-auto mb-3">
-                            <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
-                            </svg>
+
+                        <!-- History Section (Bottom of Desktop Right Panel) -->
+                        <div class="p-6 border-t border-white/5 hidden lg:block">
+                            <p class="text-[10px] font-bold uppercase tracking-widest text-white/30 mb-4">Command History</p>
+                            <div id="command-history" class="flex flex-wrap gap-2 max-h-24 overflow-y-auto custom-scrollbar">
+                                <!-- Items injected here -->
+                                <p id="no-history" class="text-xs text-white/20 italic">No history yet</p>
+                            </div>
                         </div>
-                        <h3 class="text-white font-medium mb-1">AI Powered</h3>
-                        <p class="text-white/60 text-sm">Advanced AI algorithms</p>
-                    </div>
-                    
-                    <div class="feature-card rounded-xl p-4 text-center">
-                        <div class="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center mx-auto mb-3">
-                            <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        </div>
-                        <h3 class="text-white font-medium mb-1">High Quality</h3>
-                        <p class="text-white/60 text-sm">Professional results</p>
                     </div>
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- Processing Progress Bar -->
-    <div id="progress-container" class="fixed top-0 left-0 right-0 z-50 hidden">
-        <div class="progress-bar" style="transform: scaleX(0)"></div>
+    <!-- Mobile Bottom Navigation -->
+    <div class="fixed bottom-0 left-0 right-0 glass border-t z-50 flex justify-around lg:hidden mobile-bottom-nav">
+        <a href="#" class="flex flex-col items-center py-3 px-6 text-primary border-t-2 border-primary">
+            <i class="ph-fill ph-house-line text-2xl"></i>
+            <span class="text-[10px] font-bold mt-1">Editor</span>
+        </a>
+        <a href="#" id="mobile-help-btn" class="flex flex-col items-center py-3 px-6 text-white/40">
+            <i class="ph ph-info text-2xl"></i>
+            <span class="text-[10px] font-bold mt-1">Help</span>
+        </a>
+        <a href="#" id="mobile-install-btn" class="flex flex-col items-center py-3 px-6 text-white/40 hidden">
+            <i class="ph ph-app-store-logo text-2xl animate-bounce"></i>
+            <span class="text-[10px] font-bold mt-1">Install</span>
+        </a>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notif-container" class="fixed top-6 right-6 z-[100] flex flex-col space-y-3 pointer-events-none"></div>
+
+    <!-- Modals -->
+    <div id="modal-overlay" class="fixed inset-0 bg-dark/80 backdrop-blur-sm z-[200] hidden items-center justify-center p-4">
+        <div id="compare-modal" class="glass-card rounded-[2.5rem] p-4 lg:p-8 max-w-5xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="font-heading font-semibold text-xl">Comparison View</h3>
+                <button id="close-modal" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-all">
+                    <i class="ph ph-x text-xl"></i>
+                </button>
+            </div>
+            <div class="flex-1 overflow-auto custom-scrollbar">
+                <img id="compare-img" src="" alt="Comparison" class="w-full h-auto rounded-3xl shadow-2xl">
+            </div>
+        </div>
     </div>
 
     <script>
-const API_BASE = "https://ai-eight-tau.vercel.app"; // <-- set to your backend deployment URL
+        const API_BASE = "https://ai-eight-tau.vercel.app";
 
-        // Global variables
+        // State
         let uploadedImageData = null;
         let processedImageData = null;
-        let currentCommand = '';
-        let processingStartTime = null;
+        let deferredPrompt;
 
-        // DOM elements
+        // Elements
         const dropZone = document.getElementById('drop-zone');
         const fileInput = document.getElementById('file-input');
-        const browseBtn = document.getElementById('browse-btn');
-        const preview = document.getElementById('preview');
+        const previewContainer = document.getElementById('preview-container');
+        const uploadPrompt = document.getElementById('upload-prompt');
         const previewImage = document.getElementById('preview-image');
         const clearBtn = document.getElementById('clear-btn');
         const fileInfo = document.getElementById('file-info');
         const commandInput = document.getElementById('command-input');
         const sendCommandBtn = document.getElementById('send-command');
-        const commandHistory = document.getElementById('command-history');
-        const effectCommands = document.querySelectorAll('.effect-command');
         const resultPlaceholder = document.getElementById('result-placeholder');
         const resultContainer = document.getElementById('result-container');
         const resultImage = document.getElementById('result-image');
@@ -544,415 +441,350 @@ const API_BASE = "https://ai-eight-tau.vercel.app"; // <-- set to your backend d
         const compareBtn = document.getElementById('compare-btn');
         const saveBtn = document.getElementById('save-btn');
         const processTime = document.getElementById('process-time');
-        const progressContainer = document.getElementById('progress-container');
-        const progressBar = progressContainer.querySelector('.progress-bar');
+        const commandHistory = document.getElementById('command-history');
+        const noHistoryText = document.getElementById('no-history');
+        const modalOverlay = document.getElementById('modal-overlay');
+        const compareImg = document.getElementById('compare-img');
 
-        // Event listeners
+        // PWA Installation
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            const installBtn = document.getElementById('mobile-install-btn');
+            if(installBtn) installBtn.classList.remove('hidden');
+        });
+
+        document.getElementById('mobile-install-btn')?.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    document.getElementById('mobile-install-btn').classList.add('hidden');
+                }
+                deferredPrompt = null;
+            }
+        });
+
+        // Register Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('SW Registered', reg))
+                    .catch(err => console.log('SW Registration Failed', err));
+            });
+        }
+
+        // Notification System
+        function showNotification(message, type = 'info') {
+            const container = document.getElementById('notif-container');
+            const notif = document.createElement('div');
+            const iconMap = {
+                success: 'ph-check-circle-fill text-green-400',
+                error: 'ph-warning-circle-fill text-red-400',
+                info: 'ph-info-fill text-primary'
+            };
+            
+            notif.className = 'glass-card text-white px-5 py-3 rounded-2xl flex items-center space-x-3 shadow-2xl border border-white/10 pointer-events-auto transform transition-all duration-300 translate-x-12 opacity-0';
+            notif.innerHTML = `
+                <i class="ph ${iconMap[type]} text-xl"></i>
+                <span class="text-xs font-semibold">${message}</span>
+            `;
+            
+            container.appendChild(notif);
+            setTimeout(() => {
+                notif.classList.remove('translate-x-12', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                notif.classList.add('translate-x-12', 'opacity-0');
+                setTimeout(() => notif.remove(), 300);
+            }, 3000);
+        }
+
+        // Health Check
+        async function checkHealth() {
+            try {
+                const res = await fetch(`${API_BASE}/api/health`);
+                const data = await res.json();
+                const statusDot = document.querySelectorAll('#ai-status-desktop div, #ai-status-mobile div');
+                const statusText = document.querySelector('#ai-status-desktop span');
+                
+                if (data.status === 'healthy') {
+                    statusDot.forEach(d => {
+                        d.classList.remove('bg-red-500');
+                        d.classList.add('bg-green-500');
+                        d.classList.remove('animate-pulse');
+                    });
+                    if(statusText) statusText.textContent = 'AI System Active';
+                    showNotification('AI Engine Connected', 'success');
+                }
+            } catch (e) {
+                showNotification('AI Engine Offline', 'error');
+            }
+        }
+        checkHealth();
+
+        // File Handling
         dropZone.addEventListener('click', () => fileInput.click());
-        browseBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            fileInput.click();
+        fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(evt => {
+            dropZone.addEventListener(evt, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+            });
         });
 
-        dropZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropZone.classList.add('drop-zone--over');
-        });
-
-        dropZone.addEventListener('dragleave', (e) => {
-            e.preventDefault();
-            dropZone.classList.remove('drop-zone--over');
-        });
-
+        dropZone.addEventListener('dragover', () => dropZone.classList.add('active'));
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('active'));
         dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropZone.classList.remove('drop-zone--over');
-            if (e.dataTransfer.files.length) {
-                fileInput.files = e.dataTransfer.files;
-                handleFileUpload(fileInput.files[0]);
-            }
+            dropZone.classList.remove('active');
+            handleFile(e.dataTransfer.files[0]);
         });
 
-        fileInput.addEventListener('change', () => {
-            if (fileInput.files.length) {
-                handleFileUpload(fileInput.files[0]);
+        function handleFile(file) {
+            if (!file || !file.type.startsWith('image/')) {
+                showNotification('Please upload a valid image', 'error');
+                return;
             }
-        });
 
-        clearBtn.addEventListener('click', () => {
-            previewImage.src = '';
-            preview.classList.add('hidden');
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewImage.src = e.target.result;
+                uploadPrompt.classList.add('hidden');
+                previewContainer.classList.remove('hidden');
+                clearBtn.classList.remove('hidden');
+                fileInfo.textContent = `${file.name} • ${(file.size / (1024 * 1024)).toFixed(1)}MB`;
+            };
+            reader.readAsDataURL(file);
+
+            // Upload to API
+            const formData = new FormData();
+            formData.append('image', file);
+            
+            showLoading(true);
+            fetch(`${API_BASE}/api/upload`, { method: 'POST', body: formData })
+                .then(res => res.json())
+                .then(data => {
+                    showLoading(false);
+                    if (data.success) {
+                        uploadedImageData = data.image_data;
+                        showNotification('Upload Successful', 'success');
+                    }
+                })
+                .catch(() => {
+                    showLoading(false);
+                    showNotification('Upload Failed', 'error');
+                });
+        }
+
+        clearBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
             fileInput.value = '';
+            previewImage.src = '';
+            uploadPrompt.classList.remove('hidden');
+            previewContainer.classList.add('hidden');
+            clearBtn.classList.add('hidden');
             uploadedImageData = null;
-            hideResult();
+            processedImageData = null;
+            resultContainer.classList.add('hidden');
+            resultPlaceholder.classList.remove('hidden');
+            downloadBtn.classList.add('hidden');
         });
+
+        // Processing
+        async function sendCommand() {
+            const command = commandInput.value.trim();
+            if (!command || !uploadedImageData) {
+                showNotification(uploadedImageData ? 'Enter a command' : 'Upload an image first', 'info');
+                return;
+            }
+
+            resultPlaceholder.classList.add('opacity-0');
+            showLoading(true, 'AI is processing...');
+            
+            try {
+                const res = await fetch(`${API_BASE}/api/process`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ image_data: uploadedImageData, command })
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    processedImageData = data.processed_image;
+                    resultImage.src = processedImageData;
+                    resultPlaceholder.classList.add('hidden');
+                    resultContainer.classList.remove('hidden');
+                    processTime.textContent = `Completed in ${data.processing_time || '0.2'}s`;
+                    addHistory(command);
+                    downloadBtn.classList.remove('hidden');
+                    showNotification('Processing Complete', 'success');
+                } else {
+                    showNotification(data.error || 'AI Failed', 'error');
+                    resultPlaceholder.classList.remove('hidden', 'opacity-0');
+                }
+            } catch (e) {
+                showNotification('Connection Error', 'error');
+                resultPlaceholder.classList.remove('hidden', 'opacity-0');
+            } finally {
+                showLoading(false);
+            }
+        }
 
         sendCommandBtn.addEventListener('click', sendCommand);
-        commandInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') sendCommand();
-        });
+        commandInput.addEventListener('keypress', (e) => e.key === 'Enter' && sendCommand());
 
-        effectCommands.forEach(btn => {
+        document.querySelectorAll('.effect-command').forEach(btn => {
             btn.addEventListener('click', () => {
-                commandInput.value = btn.textContent.trim();
+                commandInput.value = btn.textContent;
                 sendCommand();
             });
         });
 
-        downloadBtn.addEventListener('click', downloadImage);
-        compareBtn.addEventListener('click', compareImages);
-        saveBtn.addEventListener('click', saveToGallery);
+        // Tools
+        downloadBtn.addEventListener('click', () => {
+            if(!processedImageData) return;
+            const a = document.createElement('a');
+            a.href = processedImageData;
+            a.download = `editor-pro-${Date.now()}.png`;
+            a.click();
+            showNotification('Download Started', 'success');
+        });
 
-        // File upload handler
-        function handleFileUpload(file) {
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                previewImage.src = e.target.result;
-                preview.classList.remove('hidden');
-                
-                // Show file info
-                const sizeInMB = (file.size / (1024 * 1024)).toFixed(2);
-                fileInfo.textContent = `${file.name} (${sizeInMB} MB)`;
-            };
-            reader.readAsDataURL(file);
-
-            // Upload to backend
-            const formData = new FormData();
-            formData.append('image', file);
-            
-            showProgress();
-            
-            fetch(`${API_BASE}/api/upload`, {
-                method: 'POST',
-                body: formData
-            })
-            .then(res => res.json())
-            .then(data => {
-                hideProgress();
+        compareBtn.addEventListener('click', async () => {
+            if (!uploadedImageData || !processedImageData) return;
+            showLoading(true, 'Generating Comparison...');
+            try {
+                const res = await fetch(`${API_BASE}/api/compare`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ original: uploadedImageData, processed: processedImageData })
+                });
+                const data = await res.json();
                 if (data.success) {
-                    uploadedImageData = data.image_data;
-                    showNotification('Image uploaded successfully!', 'success');
-                } else {
-                    showNotification('Upload failed: ' + (data.error || 'Unknown error'), 'error');
+                    compareImg.src = data.comparison_image;
+                    modalOverlay.classList.remove('hidden');
+                    modalOverlay.classList.add('flex');
                 }
-            })
-            .catch(error => {
-                hideProgress();
-                showNotification('Failed to connect to backend', 'error');
-                console.error('Upload error:', error);
-            });
-        }
+            } finally {
+                showLoading(false);
+            }
+        });
 
-        // Health check on load
-        window.addEventListener('DOMContentLoaded', () => {
-            fetch(`${API_BASE}/api/health`)
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === 'healthy') {
-                    document.getElementById('ai-status').querySelector('.status-indicator').classList.add('bg-green-400');
-                    showNotification('Backend connected!', 'success');
-                } else {
-                    showNotification('Backend not healthy', 'error');
-                }
-            })
-            .catch(() => {
-                document.getElementById('ai-status').querySelector('.status-indicator').classList.remove('bg-green-400');
-                document.getElementById('ai-status').querySelector('.status-indicator').classList.add('bg-red-400');
-                showNotification('Cannot connect to backend', 'error');
+        saveBtn.addEventListener('click', async () => {
+            if (!processedImageData) return;
+            showLoading(true, 'Saving...');
+            try {
+                const res = await fetch(`${API_BASE}/api/save`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        image_data: processedImageData, 
+                        command: commandInput.value || 'AI Effect' 
+                    })
+                });
+                const data = await res.json();
+                if (data.success) showNotification('Saved to Cloud', 'success');
+            } finally {
+                showLoading(false);
+            }
+        });
+
+        // Manual Edit
+        const sliders = {
+            brightness: document.getElementById('brightness-range'),
+            contrast: document.getElementById('contrast-range'),
+            rotate: document.getElementById('rotate-range')
+        };
+
+        Object.entries(sliders).forEach(([key, el]) => {
+            el.addEventListener('input', (e) => {
+                const valEl = document.getElementById(`${key}-val`);
+                if(key === 'rotate') valEl.textContent = `${e.target.value}°`;
+                else valEl.textContent = `${Math.round(e.target.value * 100)}%`;
             });
         });
 
-        // Notification utility
-        function showNotification(message, type='info') {
-            // Simple notification (customize as needed)
-            const color = type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500';
-            let notif = document.createElement('div');
-            notif.className = `fixed top-6 right-6 px-4 py-2 rounded-lg text-white font-semibold shadow-lg z-50 ${color}`;
-            notif.textContent = message;
-            document.body.appendChild(notif);
-            setTimeout(() => notif.remove(), 2500);
-        }
-
-        // How to run the frontend
-        const instructions = `
-        1. Make sure your backend (Flask app) is running on http://localhost:5000.
-        2. Open \`ai.html\` in your web browser (double-click the file or right-click and choose "Open with" > your browser).
-        3. The frontend will connect to the backend automatically via JavaScript fetch requests.
-        4. You do **not** need to run a separate web server for the frontend unless you want to access it from another device or use advanced features.
-
-        Optional: Serve with a local web server (for CORS or advanced usage)
-        - You can use Python's built-in HTTP server:
-          \`\`\`sh
-          cd c:\\Users\\aryan\\OneDrive\\Desktop\\IMG.AI
-          python -m http.server 8080
-          \`\`\`
-        - Then open http://localhost:8080/ai.html in your browser.
-
-        Note
-        - Make sure both frontend and backend are running on the same machine, or adjust API URLs if needed.
-        `;
-
-        // Display instructions in a readable format
-        console.log('%c How to run the frontend', 'font-weight: bold; font-size: 16px;');
-        instructions.split('\n').forEach(line => {
-            console.log('%c ' + line, 'font-size: 14px;');
-        });
-
-        function sendCommand() {
-            const command = commandInput.value.trim();
-            if (!command) {
-                showNotification('Please enter a command.', 'error');
-                return;
-            }
-            if (!uploadedImageData) {
-                showNotification('Please upload an image first.', 'error');
-                return;
-            }
-
-            // Show processing indicator
-            processingIndicator.classList.remove('hidden');
-            resultContainer.classList.add('hidden');
-            resultPlaceholder.classList.remove('hidden');
-
-            fetch(`${API_BASE}/api/process`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    image_data: uploadedImageData,
-                    command: command
-                })
-            })
-            .then(res => res.json())
-            .then(data => {
-                processingIndicator.classList.add('hidden');
-                if (data.success && data.processed_image) {
-                    processedImageData = data.processed_image;
-                    resultImage.src = processedImageData;
-                    resultContainer.classList.remove('hidden');
-                    resultPlaceholder.classList.add('hidden');
-                    processTime.textContent = `Processed in ${data.processing_time || '?'}s`;
-                    addCommandToHistory(command);
-                    showNotification('Image processed!', 'success');
-                    showDownloadButton();
-                } else {
-                    showNotification('Processing failed: ' + (data.error || 'Unknown error'), 'error');
-                    downloadBtn.classList.add('hidden');
-                }
-            })
-            .catch(error => {
-                processingIndicator.classList.add('hidden');
-                showNotification('Failed to connect to backend', 'error');
-                console.error('Process error:', error);
-                downloadBtn.classList.add('hidden');
-            });
-        }
-
-        // Download processed image
-        function downloadImage() {
-            if (!processedImageData) {
-                showNotification('No processed image to download.', 'error');
-                return;
-            }
-            // Create a temporary link and trigger download
-            const link = document.createElement('a');
-            link.href = processedImageData;
-            link.download = 'processed_image.png';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            showNotification('Download started!', 'success');
-        }
-
-        // Show download button when processed image is available
-        function showDownloadButton() {
-            if (processedImageData) {
-                downloadBtn.classList.remove('hidden');
-            } else {
-                downloadBtn.classList.add('hidden');
-            }
-        }
-
-        function addCommandToHistory(command) {
-            const item = document.createElement('div');
-            item.className = 'command-history-item text-white/90 bg-white/10 rounded px-3 py-1';
-            item.textContent = command;
-            commandHistory.prepend(item);
-            // Limit history to 10 items
-            while (commandHistory.children.length > 10) {
-                commandHistory.removeChild(commandHistory.lastChild);
-            }
-        }
-
-        function showProgress() {
-            progressContainer.classList.remove('hidden');
-            progressBar.style.transform = 'scaleX(0.7)';
-        }
-        function hideProgress() {
-            progressBar.style.transform = 'scaleX(0)';
-            setTimeout(() => progressContainer.classList.add('hidden'), 400);
-        }
-        function hideResult() {
-            resultContainer.classList.add('hidden');
-            resultPlaceholder.classList.remove('hidden');
-        }
-
-        // Help button functionality
-        document.querySelector('.btn-secondary').addEventListener('click', () => {
-            showNotification('How to use: 1) Upload image 2) Enter command or select effect 3) Click Send', 'info');
-            console.log('[HELP] Help button clicked');
-        });
-
-        // Save to gallery
-        function saveToGallery() {
-            if (!processedImageData) {
-                showNotification('No processed image to save.', 'error');
-                console.log('[SAVE] No processed image');
-                return;
-            }
-            showProgress();
-            fetch(`${API_BASE}/api/save`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    image_data: processedImageData,
-                    command: commandInput.value.trim() || 'Unknown effect'
-                })
-            })
-            .then(res => res.json())
-            .then(data => {
-                hideProgress();
+        document.getElementById('apply-edit-btn').addEventListener('click', async () => {
+            const current = processedImageData || uploadedImageData;
+            if(!current) return;
+            
+            showLoading(true, 'Applying tweaks...');
+            try {
+                const res = await fetch(`${API_BASE}/api/manual_edit`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        image_data: current,
+                        brightness: parseFloat(sliders.brightness.value),
+                        contrast: parseFloat(sliders.contrast.value),
+                        saturation: 1.0,
+                        rotate: parseInt(sliders.rotate.value)
+                    })
+                });
+                const data = await res.json();
                 if (data.success) {
-                    showNotification('Image saved to gallery!', 'success');
-                    console.log('[SAVE] Success', data);
-                } else {
-                    showNotification('Save failed: ' + (data.error || 'Unknown error'), 'error');
-                    console.log('[SAVE] Fail', data);
-                }
-            })
-            .catch(error => {
-                hideProgress();
-                showNotification('Failed to connect to backend', 'error');
-                console.error('[SAVE] Error:', error);
-            });
-        }
-
-        // Compare images
-        function compareImages() {
-            if (!uploadedImageData || !processedImageData) {
-                showNotification('Upload and process an image first.', 'error');
-                console.log('[COMPARE] Missing images');
-                return;
-            }
-            showProgress();
-            fetch(`${API_BASE}/api/compare`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    original: uploadedImageData,
-                    processed: processedImageData
-                })
-            })
-            .then(res => res.json())
-            .then(data => {
-                hideProgress();
-                if (data.success && data.comparison_image) {
-                    showCompareModal(data.comparison_image);
-                    console.log('[COMPARE] Success', data);
-                } else {
-                    showNotification('Compare failed: ' + (data.error || 'Unknown error'), 'error');
-                    console.log('[COMPARE] Fail', data);
-                }
-            })
-            .catch(error => {
-                hideProgress();
-                showNotification('Failed to connect to backend', 'error');
-                console.error('[COMPARE] Error:', error);
-            });
-        }
-
-        // Simple compare modal
-        function showCompareModal(imageData) {
-            let modal = document.createElement('div');
-            modal.style.position = 'fixed';
-            modal.style.top = '0';
-            modal.style.left = '0';
-            modal.style.width = '100vw';
-            modal.style.height = '100vh';
-            modal.style.background = 'rgba(0,0,0,0.7)';
-            modal.style.display = 'flex';
-            modal.style.alignItems = 'center';
-            modal.style.justifyContent = 'center';
-            modal.style.zIndex = '9999';
-            modal.innerHTML = `
-                <div style="background:#fff;padding:24px;border-radius:16px;max-width:90vw;max-height:90vh;overflow:auto;position:relative;">
-                    <img src="${imageData}" style="max-width:80vw;max-height:80vh;display:block;margin:auto;border-radius:12px;">
-                    <button id="close-compare-modal" style="position:absolute;top:12px;right:12px;background:#e53e3e;color:#fff;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;">Close</button>
-                </div>
-            `;
-            document.body.appendChild(modal);
-            document.getElementById('close-compare-modal').onclick = () => modal.remove();
-            console.log('[COMPARE] Modal shown');
-        }
-
-        // Manual Edit Feature (calls backend)
-        document.getElementById('apply-edit-btn').addEventListener('click', () => {
-            if (!uploadedImageData && !processedImageData) {
-                showNotification('No image to edit.', 'error');
-                return;
-            }
-            showProgress();
-            // Use processedImageData if available, else uploadedImageData
-            const imageData = processedImageData || uploadedImageData;
-            const brightness = parseFloat(document.getElementById('brightness-range').value);
-            const contrast = parseFloat(document.getElementById('contrast-range').value);
-            const saturation = parseFloat(document.getElementById('saturation-range').value);
-            const rotate = parseInt(document.getElementById('rotate-range').value, 10);
-
-            fetch(`${API_BASE}/api/manual_edit`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    image_data: imageData,
-                    brightness: brightness,
-                    contrast: contrast,
-                    saturation: saturation,
-                    rotate: rotate
-                    // Crop not implemented in UI yet
-                })
-            })
-            .then(res => res.json())
-            .then(data => {
-                hideProgress();
-                if (data.success && data.edited_image) {
                     processedImageData = data.edited_image;
                     resultImage.src = processedImageData;
                     resultContainer.classList.remove('hidden');
                     resultPlaceholder.classList.add('hidden');
-                    processTime.textContent = `Manual edit applied`;
-                    showNotification('Manual edit applied!', 'success');
-                    showDownloadButton();
-                } else {
-                    showNotification('Manual edit failed: ' + (data.error || 'Unknown error'), 'error');
+                    showNotification('Adjustments Applied', 'success');
                 }
-            })
-            .catch(error => {
-                hideProgress();
-                showNotification('Failed to connect to backend', 'error');
-                console.error('[MANUAL EDIT] Error:', error);
-            });
+            } finally {
+                showLoading(false);
+            }
         });
 
         document.getElementById('reset-edit-btn').addEventListener('click', () => {
-            document.getElementById('brightness-range').value = 1;
-            document.getElementById('contrast-range').value = 1;
-            document.getElementById('saturation-range').value = 1;
-            document.getElementById('rotate-range').value = 0;
-            showNotification('Manual edit reset', 'info');
+            sliders.brightness.value = 1;
+            sliders.contrast.value = 1;
+            sliders.rotate.value = 0;
+            sliders.brightness.dispatchEvent(new Event('input'));
+            sliders.contrast.dispatchEvent(new Event('input'));
+            sliders.rotate.dispatchEvent(new Event('input'));
         });
-        document.getElementById('crop-btn').addEventListener('click', () => {
-            showNotification('Crop feature coming soon!', 'info');
+
+        // UI Helpers
+        function showLoading(show, text = 'Loading...') {
+            processingIndicator.classList.toggle('hidden', !show);
+            if(show) {
+                processingIndicator.querySelector('span').textContent = text;
+                sendCommandBtn.disabled = true;
+                sendCommandBtn.classList.add('opacity-50');
+            } else {
+                sendCommandBtn.disabled = false;
+                sendCommandBtn.classList.remove('opacity-50');
+            }
+        }
+
+        function addHistory(cmd) {
+            if(noHistoryText) noHistoryText.remove();
+            const badge = document.createElement('div');
+            badge.className = 'px-3 py-1 bg-white/5 border border-white/5 rounded-lg text-[10px] font-medium text-white/50 hover:bg-white/10 cursor-pointer transition-all';
+            badge.textContent = cmd;
+            badge.onclick = () => {
+                commandInput.value = cmd;
+                sendCommand();
+            };
+            commandHistory.prepend(badge);
+        }
+
+        // Modal close
+        document.getElementById('close-modal').onclick = () => {
+            modalOverlay.classList.remove('flex');
+            modalOverlay.classList.add('hidden');
+        };
+        modalOverlay.onclick = (e) => {
+            if(e.target === modalOverlay) document.getElementById('close-modal').click();
+        };
+
+        // Help buttons
+        [document.getElementById('desktop-help-btn'), document.getElementById('mobile-help-btn')].forEach(btn => {
+            btn?.addEventListener('click', (e) => {
+                e.preventDefault();
+                showNotification('Upload a photo and use AI tools to edit!', 'info');
+            });
         });
     </script>
 </body>
